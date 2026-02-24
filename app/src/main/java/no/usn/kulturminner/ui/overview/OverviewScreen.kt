@@ -66,7 +66,7 @@ fun OverviewScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Text("Opplevelsespunkt: 3")
-                                Text("Ruter: 2")
+                                Text("Ruter: 0")
                             }
                             Button(
                                 modifier = Modifier
