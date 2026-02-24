@@ -13,7 +13,9 @@ fun OverviewScreen(
     uiState: OverviewUiState,
     onCreatePointClick: () -> Unit,
     onEditPointClick: () -> Unit,
-    onEditRouteClick: () -> Unit
+    onEditRouteClick: () -> Unit,
+    onSortAlphabetically: () -> Unit,
+    onSortByDate: () -> Unit
 ) {
 
     // Bruker conditional rendering for å vise eventuell loading, error, eller mangel på innhold
@@ -51,32 +53,51 @@ fun OverviewScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer
                         )
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                        Row (
+                            modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+                        ) {
+                            Column() {
+
+                                Text(
+                                    text = "Oversikt",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text("Opplevelsespunkt: 3")
+                                Text("Ruter: 2")
+                            }
+                            Button(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(24.dp),
+                                onClick = onCreatePointClick
+                            ) {
+                                Text("Nytt punkt")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp, 0.dp, 16.dp, 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            OutlinedButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = onSortAlphabetically
                             ) {
+                                Text("Sorter alfabetisk")
+                            }
 
-                                Column {
-                                    Text(
-                                        text = "Oversikt",
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    Text("Opplevelsespunkt: 3")
-                                    Text("Ruter: 2")
-                                }
-
-                                Button(
-                                    onClick = onCreatePointClick
-                                ) {
-                                    Text("Nytt punkt")
-                                }
+                            OutlinedButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = onSortByDate
+                            ) {
+                                Text("Sorter etter dato")
                             }
                         }
                     }

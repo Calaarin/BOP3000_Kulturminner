@@ -97,6 +97,14 @@ fun AppNavHost() {
                     },
                     onEditRouteClick = {
                         navController.navigate(Destinations.EditRoute.route)
+                    },
+
+                    // Eksempel på metodereferanse fra ViewModel (::)
+                    onSortAlphabetically = viewModel::sortAlphabetically,
+
+                    // Eksempel på lambda (alternativ)
+                    onSortByDate = {
+                        viewModel.sortByDate()
                     }
                 )
             }
