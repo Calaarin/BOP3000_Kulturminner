@@ -94,6 +94,9 @@ fun AppNavHost() {
                     },
                     onEditPointClick = {
                         navController.navigate(Destinations.EditPoint.route)
+                    },
+                    onEditRouteClick = {
+                        navController.navigate(Destinations.EditRoute.route)
                     }
                 )
             }
