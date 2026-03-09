@@ -45,7 +45,7 @@ fun OverviewScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                // Oversiktskort
+                // Oversiktskort - Ekstra kommentar
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
