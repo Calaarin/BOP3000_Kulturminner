@@ -2,8 +2,10 @@ package no.usn.kulturminner.ui.overview
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -17,151 +19,183 @@ fun OverviewScreen(
     onSortAlphabetically: () -> Unit,
     onSortByDate: () -> Unit
 ) {
-
-    // Bruker conditional rendering for å vise eventuell loading, error, eller mangel på innhold
-    // when-setning er Kotlins versjon av switch-setning fra Java (med ekstra features). Alternativ: if-else.
-
     when {
-        // Hvis data laster
         uiState.isLoading -> {
-            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-        }
-
-        // Hvis det er error ved henting av data
-        uiState.error != null -> {
-            Text(
-                text = "Feil: ${uiState.error}",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        // Hvis man har mottat data lages innholdet
-        uiState.demoPoints.isNotEmpty() -> {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
+                CircularProgressIndicator()
+            }
+        }
 
-                // Oversiktskort
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Row (
-                            modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+        uiState.error != null -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Feil: ${uiState.error}",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
+        uiState.demoPoints.isNotEmpty() -> {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(bottom = 88.dp)
+                ) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
-                            Column() {
-
+                            Column(
+                                modifier = Modifier.padding(20.dp)
+                            ) {
                                 Text(
                                     text = "Oversikt",
                                     style = MaterialTheme.typography.titleLarge
                                 )
 
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
-                                Text("Opplevelsespunkt: 3")
-                                Text("Ruter: 0")
-                            }
-                            Button(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(24.dp),
-                                onClick = onCreatePointClick
-                            ) {
-                                Text("Nytt punkt")
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = uiState.demoPoints.size.toString(),
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Text(
+                                            text = "Punkter",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+
+                                    Column {
+                                        Text(
+                                            text = "0",
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Text(
+                                            text = "Ruter",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    OutlinedButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = onSortAlphabetically,
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) {
+                                        Text("Sorter alfabetisk")
+                                    }
+
+                                    OutlinedButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = onSortByDate,
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) {
+                                        Text("Sorter etter dato")
+                                    }
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp, 0.dp, 16.dp, 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-
-                            OutlinedButton(
-                                modifier = Modifier.weight(1f),
-                                onClick = onSortAlphabetically
-                            ) {
-                                Text("Sorter alfabetisk")
+                    items(uiState.demoPoints.size) { index ->
+                        val backgroundColor =
+                            if (index % 2 == 0) {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            } else {
+                                Color(0xFFEAF4FF)
                             }
 
-                            OutlinedButton(
-                                modifier = Modifier.weight(1f),
-                                onClick = onSortByDate
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = backgroundColor
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
                             ) {
-                                Text("Sorter etter dato")
+                                Text(
+                                    text = uiState.demoPoints[index],
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Button(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = onEditPointClick,
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) {
+                                        Text("Rediger punkt")
+                                    }
+
+                                    OutlinedButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = onEditRouteClick,
+                                        shape = RoundedCornerShape(14.dp)
+                                    ) {
+                                        Text("Rediger rute")
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
-                // Action cards (alternerende farger)
-                items(uiState.demoPoints.size) { index ->
-
-                    val backgroundColor =
-                        if (index % 2 == 0)
-                            MaterialTheme.colorScheme.surfaceVariant
-                        else
-                            Color(0xFFE3F2FD) // lys blå
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = backgroundColor
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-
-                            Text(
-                                text = uiState.demoPoints[index],
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-
-                                Button(
-                                    modifier = Modifier.weight(1f),
-                                    onClick = onEditPointClick
-                                ) {
-                                    Text("Rediger punkt")
-                                }
-
-                                OutlinedButton(
-                                    modifier = Modifier.weight(1f),
-                                    onClick = onEditRouteClick
-                                ) {
-                                    Text("Rediger rute")
-                                }
-                            }
-                        }
-                    }
+                FloatingActionButton(
+                    onClick = onCreatePointClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("+")
                 }
             }
         }
 
-        // Hvis det ikke finnes data
         else -> {
-            Text(
-                "Ingen data tilgjengelig",
-                modifier = Modifier.padding(16.dp)
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Ingen opplevelsespunkt enda",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
-
     }
-
-
 }
