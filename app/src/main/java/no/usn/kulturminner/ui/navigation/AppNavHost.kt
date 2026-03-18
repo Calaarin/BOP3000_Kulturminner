@@ -117,7 +117,9 @@ fun AppNavHost() {
             composable(Destinations.CreatePoint.route) {
                 val viewModel: CreatePointViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-                CreatePointScreen(uiState = uiState)
+
+                CreatePointScreen(
+                )
             }
 
             // --- EDIT POINT ---
