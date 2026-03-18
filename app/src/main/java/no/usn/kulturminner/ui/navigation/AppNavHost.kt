@@ -116,7 +116,6 @@ fun AppNavHost() {
                 val uiState by viewModel.uiState.collectAsState()
 
                 CreatePointScreen(
-                    uiState = uiState
                 )
             }
 
