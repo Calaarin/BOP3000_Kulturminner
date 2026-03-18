@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect // Lagt til for håndtering av navigasjon
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -56,34 +57,43 @@ fun AppNavHost() {
             modifier = androidx.compose.ui.Modifier.padding(innerPadding)
         ) {
 
-            // Login
+            // --- LOGIN ---
             composable(Destinations.Login.route) {
-
                 val viewModel: LoginViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
 
+                // Når innlogging lykkes i ViewModel, navigerer vi til Overview
+                if (uiState.isLoginSuccess) {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Destinations.Overview.route) {
+                            // Fjerner login fra historikken så man ikke kan gå "tilbake" til den
+                            popUpTo(Destinations.Login.route) { inclusive = true }
+                        }
+                    }
+                }
+
                 LoginScreen(
                     uiState = uiState,
+                    onEmailChange = viewModel::onEmailChange,
+                    onPasswordChange = viewModel::onPasswordChange,
+                    onLoginClick = viewModel::login,
                     onSkipClick = {
-                        navController.navigate(Destinations.Overview.route)
+                        navController.navigate(Destinations.Overview.route) {
+                            popUpTo(Destinations.Login.route) { inclusive = true }
+                        }
                     }
                 )
             }
 
-            // Explore (bruker preview)
+            // --- EXPLORE ---
             composable(Destinations.Explore.route) {
-
                 val viewModel: ExploreViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                ExploreScreen(
-                    uiState = uiState
-                )
+                ExploreScreen(uiState = uiState)
             }
 
-            // Overview (admin dashboard)
+            // --- OVERVIEW (admin dashboard) ---
             composable(Destinations.Overview.route) {
-
                 val viewModel: OverviewViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
 
@@ -98,59 +108,39 @@ fun AppNavHost() {
                     onEditRouteClick = {
                         navController.navigate(Destinations.EditRoute.route)
                     },
-
-                    // Eksempel på metodereferanse fra ViewModel (::)
                     onSortAlphabetically = viewModel::sortAlphabetically,
-
-                    // Eksempel på lambda (alternativ)
-                    onSortByDate = {
-                        viewModel.sortByDate()
-                    }
+                    onSortByDate = viewModel::sortByDate
                 )
             }
 
-            // Create Point
+            // --- CREATE POINT ---
             composable(Destinations.CreatePoint.route) {
-
                 val viewModel: CreatePointViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
 
                 CreatePointScreen(
-                    uiState = uiState
                 )
             }
 
-            // Edit Point
+            // --- EDIT POINT ---
             composable(Destinations.EditPoint.route) {
-
                 val viewModel: EditPointViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                EditPointScreen(
-                    uiState = uiState
-                )
+                EditPointScreen(uiState = uiState)
             }
 
-            // Create Route
+            // --- CREATE ROUTE ---
             composable(Destinations.CreateRoute.route) {
-
                 val viewModel: CreateRouteViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                CreateRouteScreen(
-                    uiState = uiState
-                )
+                CreateRouteScreen(uiState = uiState)
             }
 
-            // Edit Route
+            // --- EDIT ROUTE ---
             composable(Destinations.EditRoute.route) {
-
                 val viewModel: EditRouteViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                EditRouteScreen(
-                    uiState = uiState
-                )
+                EditRouteScreen(uiState = uiState)
             }
         }
     }
