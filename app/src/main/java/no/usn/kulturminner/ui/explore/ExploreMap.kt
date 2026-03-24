@@ -1,7 +1,6 @@
 package no.usn.kulturminner.ui.explore
 
 import android.os.Bundle
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,21 +43,6 @@ private fun kartverketStyle(): String = """
   ]
 }
 """.trimIndent()
-
-private class MapScrollConnection : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        // MapLibre skal ta ALL scrolling (pan + zoom)
-        return available  // returnerer hele deltaet → map konsumerer det
-    }
-
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource
-    ): Offset {
-        return Offset.Zero  // ingen mer scrolling til MediaPanel
-    }
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -111,9 +95,14 @@ fun ExploreMap(
     AndroidView(
         factory = { mapView },
         modifier = modifier
-            .fillMaxSize()
-            .nestedScroll(
-                remember { MapScrollConnection() }  // ← Ny connection
-            )
+            .nestedScroll(object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    return available
+                }
+            })
+            .pointerInteropFilter { motionEvent ->
+                mapView.dispatchTouchEvent(motionEvent)
+                true // true = hendelsen er konsumert, bobler ikke videre
+            }
     )
 }

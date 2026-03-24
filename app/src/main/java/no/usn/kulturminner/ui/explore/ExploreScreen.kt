@@ -7,14 +7,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 @Composable
 fun ExploreScreen(
@@ -31,18 +26,13 @@ fun ExploreScreen(
             initialZoom = 12.0
         )
 
-        // Mediapanel som overlay nederst – skal kun være synlig når bruker er nær punkt
+        // Mediapanel som overlay nederst – kun synlig når bruker er nær punkt
         // (foreløpig alltid synlig for testing)
         MediaPanel(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.45f)
+                .fillMaxHeight(0.45f) // ca 45% av skjermen
                 .align(Alignment.BottomCenter)
-                .nestedScroll(remember { NoOpScrollConnection() })  // blokkerer oppover-scroll
         )
     }
-}
-
-private class NoOpScrollConnection : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset = Offset.Zero
 }
