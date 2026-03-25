@@ -29,6 +29,7 @@ fun ExploreScreen(
         // Mediapanel som overlay nederst – kun synlig når bruker er nær punkt
         // (foreløpig alltid synlig for testing)
         MediaPanel(
+            uiState = uiState,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.45f) // ca 45% av skjermen
