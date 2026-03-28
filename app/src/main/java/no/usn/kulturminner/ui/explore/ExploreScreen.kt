@@ -16,23 +16,24 @@ fun ExploreScreen(
     uiState: ExploreUiState
 ) {
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
 
-        // Kartdel – tar halve skjermen, scrolles ikke
+        // Kart i bakgrunnen – fyller hele skjermen
         ExploreMap(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),  // 50% av skjermen
+            modifier = Modifier.fillMaxSize(),
             initialLat = 59.41,
             initialLng = 9.06,
             initialZoom = 12.0
         )
 
-        // Mediadel – tar andre halvdelen, kan scrolles uavhengig
+        // Mediapanel som overlay nederst – kun synlig når bruker er nær punkt
+        // (foreløpig alltid synlig for testing)
         MediaPanel(
+            uiState = uiState,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .fillMaxHeight(0.45f) // ca 45% av skjermen
+                .align(Alignment.BottomCenter)
         )
     }
 }
