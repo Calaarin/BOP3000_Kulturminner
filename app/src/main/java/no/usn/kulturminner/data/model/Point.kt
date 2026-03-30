@@ -10,6 +10,7 @@ data class Point(
     val lat: Double,
     val lng: Double,
     val radius: Int,                                // Søkeradius i meter
+    val audioUrl: String? = null,                   // Valgfri lydfil med fortellerstemme
     val sections: List<Section> = emptyList(),       // Liste med seksjoner
 
     // Timestamps - disse skal settes automatisk ved lagring
