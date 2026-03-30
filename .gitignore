@@ -1,5 +1,5 @@
 # Android Studio / IDE
-**/.idea/
+.idea/
 *.iml
 *.ipr
 *.iws
