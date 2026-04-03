@@ -11,4 +11,9 @@ sealed class Destinations(val route: String) {
 
     object CreateRoute : Destinations("create_route")
     object EditRoute : Destinations("edit_route")
+
+    object MediaPanel : Destinations("mediapanel")
+
+    object AddMediaText : Destinations("add_media_text")
+
 }

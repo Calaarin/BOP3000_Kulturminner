@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect // Lagt til for håndtering av navigasjon
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,8 +26,14 @@ import no.usn.kulturminner.ui.createroute.CreateRouteScreen
 import no.usn.kulturminner.ui.createroute.CreateRouteViewModel
 import no.usn.kulturminner.ui.editroute.EditRouteScreen
 import no.usn.kulturminner.ui.editroute.EditRouteViewModel
+import no.usn.kulturminner.ui.mediapanel.MediaPanelScreen
+import no.usn.kulturminner.ui.mediapanel.MediaPanelViewModel
+import no.usn.kulturminner.ui.mediapanel.AddMediaTextScreen
+import no.usn.kulturminner.ui.mediapanel.TextSection
+import androidx.compose.material3.Text
 import no.usn.kulturminner.ui.components.TopBar
 import no.usn.kulturminner.ui.components.BottomNavBar
+
 
 @Composable
 fun AppNavHost() {
@@ -62,11 +68,9 @@ fun AppNavHost() {
                 val viewModel: LoginViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
 
-                // Når innlogging lykkes i ViewModel, navigerer vi til Overview
                 if (uiState.isLoginSuccess) {
                     LaunchedEffect(Unit) {
                         navController.navigate(Destinations.Overview.route) {
-                            // Fjerner login fra historikken så man ikke kan gå "tilbake" til den
                             popUpTo(Destinations.Login.route) { inclusive = true }
                         }
                     }
@@ -109,7 +113,14 @@ fun AppNavHost() {
                         navController.navigate(Destinations.EditRoute.route)
                     },
                     onSortAlphabetically = viewModel::sortAlphabetically,
-                    onSortByDate = viewModel::sortByDate
+                    onSortByDate = viewModel::sortByDate,
+                    onMediaPanelClick = {
+                        navController.navigate(Destinations.MediaPanel.route)
+                    },
+                    // Knytter "Legg til tekst"-knappen til den nye ruta:
+                    onAddMediaTextClick = {
+                        navController.navigate(Destinations.AddMediaText.route)
+                    }
                 )
             }
 
@@ -117,9 +128,7 @@ fun AppNavHost() {
             composable(Destinations.CreatePoint.route) {
                 val viewModel: CreatePointViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                CreatePointScreen(
-                )
+                CreatePointScreen()
             }
 
             // --- EDIT POINT ---
@@ -141,6 +150,29 @@ fun AppNavHost() {
                 val viewModel: EditRouteViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
                 EditRouteScreen(uiState = uiState)
+            }
+
+            // --- MEDIA PANEL (Visning) ---
+            composable(Destinations.MediaPanel.route) {
+                val viewModel: MediaPanelViewModel = viewModel()
+                val uiState by viewModel.uiState.collectAsState()
+
+                MediaPanelScreen(
+                    uiState = uiState
+                )
+            }
+
+            // --- ADD MEDIA TEXT (Siden hvor man skriver inn tekst og velger kolonner) ---
+            // ... (din siste composable-blokk her) ...
+            composable(Destinations.AddMediaText.route) {
+                AddMediaTextScreen(
+                    onSaveClick = { newSection ->
+                        navController.popBackStack()
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
