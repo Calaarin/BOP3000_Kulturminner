@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)      // @Serializable
 }
 
 android {
@@ -61,5 +62,13 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.7")
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    // MapLibre SDK
     implementation("org.maplibre.gl:android-sdk:13.0.1")
+    // Retrofit + kotlinx-serialization converter
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.kotlinx.serialization)
+    // OkHttp logging (kun for debugging)
+    implementation(libs.okhttp.logging)
+    // Kotlinx serialization (selve parseren)
+    implementation(libs.kotlinx.serialization.json)
 }
