@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.maplibre.android.BuildConfig
+import no.usn.kulturminner.BuildConfig
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 

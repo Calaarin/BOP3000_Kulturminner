@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import no.usn.kulturminner.data.repository.OverviewRepository
+import no.usn.kulturminner.data.repository.`OverviewRepository-dummydata`
 
 class OverviewViewModel(
-    private val repository: OverviewRepository = OverviewRepository()
+    private val repository: `OverviewRepository-dummydata` = `OverviewRepository-dummydata`()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OverviewUiState())

@@ -31,6 +31,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true   // Legger til denne for Instant-støtte ned til API 21
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -39,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -71,4 +73,6 @@ dependencies {
     implementation(libs.okhttp.logging)
     // Kotlinx serialization (selve parseren)
     implementation(libs.kotlinx.serialization.json)
+    // Desugaring for java.time.Instant på API 24
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
