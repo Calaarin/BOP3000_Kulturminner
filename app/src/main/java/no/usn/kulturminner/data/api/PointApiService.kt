@@ -1,0 +1,63 @@
+package no.usn.kulturminner.data.api
+
+import no.usn.kulturminner.data.network.RetrofitInstance
+import retrofit2.http.*
+
+interface PointApiService {
+
+    // === Henting === TODO: endepunkter må matches med server
+
+    // Hent ALLE punkter (til kart - vi får se om mer optimalisert datafetching bør gjøres etter hvert)
+    @GET("points")
+    suspend fun getAllPoints(): List<PointDto>
+
+    // Hent alle punkter for innlogget bruker (nåværende løsning med dummy-id)
+    @GET("points/user/{userId}")
+    suspend fun getMyPoints(
+        @Path("userId") userId: String
+    ): List<PointDto>
+
+    // Fremtidig versjon når auth er på plass (dette er bedre praksis med bruk av auth token)
+    // @GET("points/me")
+    // suspend fun getMyPoints(): List<PointDto>
+
+    // Hent ett enkelt punkt
+    @GET("points/{id}")
+    suspend fun getPoint(
+        @Path("id") id: String
+    ): PointDto
+
+    // === Oppretting / oppdatering / sletting ===
+
+    // Opprett nytt punkt
+    @POST("points")
+    suspend fun createPoint(
+        @Body point: PointDto
+    ): PointDto
+
+    // Oppdater punkt - PATCH er anbefalt (delvis oppdatering)
+    @PATCH("points/{id}")
+    suspend fun updatePoint(
+        @Path("id") id: String,
+        @Body point: PointDto
+    ): PointDto
+
+    // Alternativ full oppdatering (PUT) - vi beholder denne til foreløpig bruk
+    @PUT("points/{id}")
+    suspend fun updatePointFull(
+        @Path("id") id: String,
+        @Body point: PointDto
+    ): PointDto
+
+    // Slett punkt
+    @DELETE("points/{id}")
+    suspend fun deletePoint(
+        @Path("id") id: String)
+}
+
+// Lazy-instans som brukes fra Source
+object PointApi {
+    val service: PointApiService by lazy {
+        RetrofitInstance.retrofit.create(PointApiService::class.java)
+    }
+}

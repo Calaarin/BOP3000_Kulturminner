@@ -7,6 +7,3 @@ data class Route(
     val color: String? = null,
     val coordinates: List<LatLng>                   // Liste med koordinatpunkt
 )
-
-// Enkel hjelpeklasse
-data class LatLng(val lat: Double, val lng: Double)

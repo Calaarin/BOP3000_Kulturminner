@@ -1,6 +1,6 @@
 package no.usn.kulturminner.data.repository
 
-class OverviewRepository {
+class `OverviewRepository-dummydata` {
 
     suspend fun getDemoPoints(): Result<List<String>> {
         return try {
