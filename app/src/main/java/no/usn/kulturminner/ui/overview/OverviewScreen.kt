@@ -20,7 +20,8 @@ fun OverviewScreen(
     onSortByDate: () -> Unit
 ) {
     when {
-        uiState.isLoading -> {
+        // Loading state (viser generell loading hvis både bruker og punkter lastes)
+        uiState.isUserLoading || uiState.isPointListLoading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -29,22 +30,21 @@ fun OverviewScreen(
             }
         }
 
-        uiState.error != null -> {
+        // Error state (prioriterer punkt-feil siden det er hovedinnholdet)
+        uiState.pointError != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Feil: ${uiState.error}",
+                    text = "Feil: ${uiState.pointError}",
                     color = MaterialTheme.colorScheme.error
                 )
             }
         }
 
-        uiState.demoPoints.isNotEmpty() -> {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+        uiState.points.isNotEmpty() -> {
+            Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -61,9 +61,7 @@ fun OverviewScreen(
                             ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(20.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
                                 Text(
                                     text = "Oversikt",
                                     style = MaterialTheme.typography.titleLarge
@@ -71,12 +69,10 @@ fun OverviewScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(24.dp)
-                                ) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                     Column {
                                         Text(
-                                            text = uiState.demoPoints.size.toString(),
+                                            text = uiState.points.size.toString(),
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                         Text(
@@ -87,7 +83,7 @@ fun OverviewScreen(
 
                                     Column {
                                         Text(
-                                            text = "0",
+                                            text = "0",           // Ruter teller – kan utvides senere
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                         Text(
@@ -123,27 +119,24 @@ fun OverviewScreen(
                         }
                     }
 
-                    items(uiState.demoPoints.size) { index ->
-                        val backgroundColor =
-                            if (index % 2 == 0) {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            } else {
-                                Color(0xFFEAF4FF)
-                            }
+                    // Punkter i listen
+                    items(uiState.points.size) { index ->
+                        val point = uiState.points[index]
+                        val backgroundColor = if (index % 2 == 0) {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        } else {
+                            Color(0xFFEAF4FF)
+                        }
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = backgroundColor
-                            ),
+                            colors = CardDefaults.cardColors(containerColor = backgroundColor),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = uiState.demoPoints[index],
+                                    text = point.title,
                                     style = MaterialTheme.typography.titleLarge
                                 )
 

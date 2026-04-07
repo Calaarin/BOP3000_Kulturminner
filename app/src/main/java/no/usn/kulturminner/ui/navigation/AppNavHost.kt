@@ -11,6 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.currentBackStackEntryAsState
+import no.usn.kulturminner.data.repository.PointRepositoryImpl
+import no.usn.kulturminner.data.repository.UserRepositoryImpl
+import no.usn.kulturminner.data.source.PointSource
+import no.usn.kulturminner.data.source.UserSource
 
 import no.usn.kulturminner.ui.auth.LoginScreen
 import no.usn.kulturminner.ui.auth.LoginViewModel
@@ -28,6 +32,8 @@ import no.usn.kulturminner.ui.editroute.EditRouteScreen
 import no.usn.kulturminner.ui.editroute.EditRouteViewModel
 import no.usn.kulturminner.ui.components.TopBar
 import no.usn.kulturminner.ui.components.BottomNavBar
+import no.usn.kulturminner.ui.overview.OverviewViewModelFactory
+import no.usn.kulturminner.ui.overview.SortType
 
 @Composable
 fun AppNavHost() {
@@ -37,6 +43,11 @@ fun AppNavHost() {
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     val isLoginScreen = currentRoute == Destinations.Login.route
+
+    // Oppretter repositorier til ViewModelFactory
+    val userRepo = UserRepositoryImpl(UserSource())
+    val pointRepo = PointRepositoryImpl(PointSource())
+    // val routeRepo = RouteRepositoryImpl(RouteSource()) - kommer senere
 
     Scaffold(
         topBar = {
@@ -94,7 +105,9 @@ fun AppNavHost() {
 
             // --- OVERVIEW (admin dashboard) ---
             composable(Destinations.Overview.route) {
-                val viewModel: OverviewViewModel = viewModel()
+                val viewModel: OverviewViewModel = viewModel(
+                    factory = OverviewViewModelFactory(userRepo, pointRepo)
+                )
                 val uiState by viewModel.uiState.collectAsState()
 
                 OverviewScreen(
@@ -108,8 +121,8 @@ fun AppNavHost() {
                     onEditRouteClick = {
                         navController.navigate(Destinations.EditRoute.route)
                     },
-                    onSortAlphabetically = viewModel::sortAlphabetically,
-                    onSortByDate = viewModel::sortByDate
+                    onSortAlphabetically = { viewModel.changeSortType(SortType.ALPHABETICAL) },
+                    onSortByDate = { viewModel.changeSortType(SortType.DATE) }
                 )
             }
 
