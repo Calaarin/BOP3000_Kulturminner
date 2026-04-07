@@ -73,11 +73,11 @@ class OverviewViewModel(
         }
     }
 
-    fun fetchMyPoints() {   // Må endres til fetchMyPoints(userId) hvis du vil begrense til innlogget bruker
+    fun fetchMyPoints() {
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getDummyPoints()           // Bruk getMyPoints() når serverkommunikasjon er klar
+            pointRepository.getDummyPoints()           // Bruk getMyPoints(userId) når serverkommunikasjon er klar
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }

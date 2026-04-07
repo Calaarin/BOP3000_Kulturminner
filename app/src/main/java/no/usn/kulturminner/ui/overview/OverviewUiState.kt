@@ -20,5 +20,5 @@ data class OverviewUiState(
 
 enum class SortType {
     DATE,           // Sist oppdatert øverst
-    ALPHABETICAL    // Alfabetisk A-Å
+    ALPHABETICAL    // Alfabetisk fra A-Å
 }
