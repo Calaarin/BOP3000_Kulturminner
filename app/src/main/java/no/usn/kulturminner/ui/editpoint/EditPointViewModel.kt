@@ -16,6 +16,10 @@ class EditPointViewModel(
     private val _uiState = MutableStateFlow(EditPointUiState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        // loadPoint("p1")          // id skal egentlig hentes fra punktlisten i Admin Dashboard, sendt via NavHost
+    }
+
     fun loadPoint(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
