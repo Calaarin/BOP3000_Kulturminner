@@ -1,24 +1,63 @@
 package no.usn.kulturminner.ui.editpoint
 
+import no.usn.kulturminner.data.model.Point
+import no.usn.kulturminner.data.model.Section
+
 data class EditPointUiState(
-    // Variabler for feilhåndtering og datahåndtering
+    // Lasting / lagring / error tilstander
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
+    val isSuccess: Boolean = false,         // Brukes som sjekk før man navigerer tilbake etter lagring
 
-    // Punkt-data
+    // Punkt-data (dataene oppdateres både fra server og brukerinput)
+    val pointId: String? = null,
     val title: String = "",
     val lat: Double = 0.0,
     val lng: Double = 0.0,
-    val radius: Int = 50,
+    val radius: Int = 50,                   // Standardverdi på 50 meter, men endres av brukerinput eller lasting fra server
     val audioUrl: String = "",
     val sections: List<SectionUiState> = listOf(SectionUiState())
 )
 
+// State for hver seksjon i seksjonslista (del av punkt-data)
 data class SectionUiState(
     val id: String? = null,
     val heading: String = "",
     val text: String = "",
     val imageUrl: String = "",
     val videoUrl: String = ""
+)
+
+
+
+// ===== Mapperfunksjoner mellom Domain/dataklasse og UiState (Extension-funksjoner for UiState) =====
+
+// Denne brukes i funksjonen loadPoint i EditPointViewModel
+fun Section.toUiState() = SectionUiState(
+    id = id,
+    heading = heading ?: "",
+    text = text ?: "",
+    imageUrl = imageUrl ?: "",
+    videoUrl = videoUrl ?: ""
+)
+
+// Denne brukes i funksjonen updatePoint  i EditPointViewModel
+fun SectionUiState.toSection() = Section(
+    id = id,
+    heading = heading.ifBlank { null },
+    text = text.ifBlank { null },
+    imageUrl = imageUrl.ifBlank { null },
+    videoUrl = videoUrl.ifBlank { null }
+)
+
+// Denne trengs kanskje ikke (men lar den ligge foreløpig)
+fun Point.toEditUiState() = EditPointUiState(
+    pointId = id,
+    title = title,
+    lat = lat,
+    lng = lng,
+    radius = radius,
+    audioUrl = audioUrl ?: "",
+    sections = sections.map { it.toUiState() }
 )

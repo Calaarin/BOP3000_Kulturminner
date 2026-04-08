@@ -32,6 +32,9 @@ import no.usn.kulturminner.ui.editroute.EditRouteScreen
 import no.usn.kulturminner.ui.editroute.EditRouteViewModel
 import no.usn.kulturminner.ui.components.TopBar
 import no.usn.kulturminner.ui.components.BottomNavBar
+import no.usn.kulturminner.ui.createpoint.CreatePointViewModelFactory
+import no.usn.kulturminner.ui.editpoint.EditPointViewModelFactory
+import no.usn.kulturminner.ui.explore.ExploreViewModelFactory
 import no.usn.kulturminner.ui.overview.OverviewViewModelFactory
 import no.usn.kulturminner.ui.overview.SortType
 
@@ -44,7 +47,7 @@ fun AppNavHost() {
 
     val isLoginScreen = currentRoute == Destinations.Login.route
 
-    // Oppretter repositorier til ViewModelFactory
+    // Oppretter repositorier til ViewModelFactories
     val userRepo = UserRepositoryImpl(UserSource())
     val pointRepo = PointRepositoryImpl(PointSource())
     // val routeRepo = RouteRepositoryImpl(RouteSource()) - kommer senere
@@ -98,8 +101,11 @@ fun AppNavHost() {
 
             // --- EXPLORE ---
             composable(Destinations.Explore.route) {
-                val viewModel: ExploreViewModel = viewModel()
+                val viewModel: ExploreViewModel = viewModel(
+                    factory = ExploreViewModelFactory(pointRepo)   // routeRepo skal legges til etter hvert
+                )
                 val uiState by viewModel.uiState.collectAsState()
+
                 ExploreScreen(uiState = uiState)
             }
 
@@ -128,16 +134,18 @@ fun AppNavHost() {
 
             // --- CREATE POINT ---
             composable(Destinations.CreatePoint.route) {
-                val viewModel: CreatePointViewModel = viewModel()
-                val uiState by viewModel.uiState.collectAsState()
-
-                CreatePointScreen(
+                val viewModel: CreatePointViewModel = viewModel(
+                    factory = CreatePointViewModelFactory(pointRepo)
                 )
+                val uiState by viewModel.uiState.collectAsState()
+                CreatePointScreen(uiState = uiState)
             }
 
             // --- EDIT POINT ---
             composable(Destinations.EditPoint.route) {
-                val viewModel: EditPointViewModel = viewModel()
+                val viewModel: EditPointViewModel = viewModel(
+                    factory = EditPointViewModelFactory(pointRepo)
+                )
                 val uiState by viewModel.uiState.collectAsState()
                 EditPointScreen(uiState = uiState)
             }

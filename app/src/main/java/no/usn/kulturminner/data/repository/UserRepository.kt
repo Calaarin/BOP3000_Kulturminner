@@ -43,6 +43,8 @@ class UserRepositoryImpl(
 
 // ==================== Mapper ====================
 
+// (Disse må oppdateres etter behov for hva som skal sendes før de er brukbare)
+
 private fun UserDto.toModel() = User(
     id = id,
     username = username,

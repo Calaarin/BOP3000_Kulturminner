@@ -47,7 +47,7 @@ class PointRepositoryImpl(
         remoteSource.deletePoint(id)
     }
 
-    // ==================== Dummy data for testing ====================
+    // ==================== Dummy data for testing (generert av AI)  ====================
 
     override suspend fun getDummyPoints(): Result<List<Point>> = runCatching {
         listOf(
@@ -160,6 +160,8 @@ class PointRepositoryImpl(
 }
 
 // ==================== Mapper ====================
+
+// (Disse må oppdateres etter behov for hva som skal sendes før de er brukbare)
 
 private fun PointDto.toModel(): Point {
     return Point(

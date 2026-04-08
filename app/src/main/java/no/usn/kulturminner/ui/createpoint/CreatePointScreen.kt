@@ -38,9 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import no.usn.kulturminner.ui.editpoint.EditPointUiState
 
 @Composable
-fun CreatePointScreen(
+fun CreatePointScreen(uiState: CreatePointUiState
 ) {
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }

@@ -10,7 +10,7 @@ import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.PointRepository
 
 class ExploreViewModel(
-    private val pointRepository: PointRepository
+    private val pointRepository: PointRepository    // routeRepository legges til senere
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ExploreUiState())
@@ -27,7 +27,6 @@ class ExploreViewModel(
             pointRepository.getDummyPoints()           // Bytt til getAllPoints() når vi skal hente data fra server
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, arePointsLoading = false) }
-                    _uiState.update { it.copy(pointNearby = points.first()) } // Dummyversjon av nært punkt til bruk i mediapanel (kan byttes mellom de fire punkt-objektene)
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(pointError = e.message, arePointsLoading = false) }
