@@ -1,8 +1,13 @@
 package no.usn.kulturminner.ui.overview
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,130 +48,209 @@ fun OverviewScreen(
 
         uiState.demoPoints.isNotEmpty() -> {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF4F1F8))
             ) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    contentPadding = PaddingValues(bottom = 88.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 120.dp)
                 ) {
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(20.dp)
-                            ) {
-                                Text(
-                                    text = "Oversikt",
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(24.dp)
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = uiState.demoPoints.size.toString(),
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
-                                        Text(
-                                            text = "Punkter",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-
-                                    Column {
-                                        Text(
-                                            text = "0",
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
-                                        Text(
-                                            text = "Ruter",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    OutlinedButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onSortAlphabetically,
-                                        shape = RoundedCornerShape(14.dp)
-                                    ) {
-                                        Text("Sorter alfabetisk")
-                                    }
-
-                                    OutlinedButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onSortByDate,
-                                        shape = RoundedCornerShape(14.dp)
-                                    ) {
-                                        Text("Sorter etter dato")
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    items(uiState.demoPoints.size) { index ->
-                        val backgroundColor =
-                            if (index % 2 == 0) {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            } else {
-                                Color(0xFFEAF4FF)
-                            }
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = backgroundColor
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                containerColor = Color(0xFFE3DDF6)
+                            )
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp)
                             ) {
-                                Text(
-                                    text = uiState.demoPoints[index],
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Top
                                 ) {
-                                    Button(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onEditPointClick,
-                                        shape = RoundedCornerShape(14.dp)
+                                    Surface(
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = Color(0xFF6F63D9)
                                     ) {
-                                        Text("Rediger punkt")
+                                        Text(
+                                            text = "ADMIN",
+                                            color = Color.White,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            modifier = Modifier.padding(
+                                                horizontal = 10.dp,
+                                                vertical = 4.dp
+                                            )
+                                        )
                                     }
 
                                     OutlinedButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = onEditRouteClick,
-                                        shape = RoundedCornerShape(14.dp)
+                                        onClick = { },
+                                        shape = RoundedCornerShape(10.dp),
+                                        contentPadding = PaddingValues(
+                                            horizontal = 12.dp,
+                                            vertical = 6.dp
+                                        )
                                     ) {
-                                        Text("Rediger rute")
+                                        Text("Endre passord")
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Text(
+                                    text = "Kari Nordamann",
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text(
+                                    text = "@kari.nordmann",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+
+                                Text(
+                                    text = "Administrasjon",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFE7E7E7)
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Opplevelsespunkter",
+                                        style = MaterialTheme.typography.headlineSmall
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = Color(0xFF9ED8F7),
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = uiState.demoPoints.size.toString(),
+                                            style = MaterialTheme.typography.labelLarge
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                Button(
+                                    onClick = onSortAlphabetically,
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF2E1E9B)
+                                    )
+                                ) {
+                                    Text("Filtrer")
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    uiState.demoPoints.forEach { point ->
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = Color(0xFFF7F7F7)
+                                            )
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Text(
+                                                        text = point,
+                                                        style = MaterialTheme.typography.titleMedium
+                                                    )
+
+                                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                                    Text(
+                                                        text = "Endret 20. mars 2026",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = Color.Gray
+                                                    )
+                                                }
+
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Surface(
+                                                        shape = RoundedCornerShape(8.dp),
+                                                        color = Color(0xFFE8E8E8)
+                                                    ) {
+                                                        IconButton(
+                                                            onClick = onEditPointClick,
+                                                            modifier = Modifier.size(36.dp)
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Edit,
+                                                                contentDescription = null,
+                                                                tint = Color.DarkGray,
+                                                                modifier = Modifier.size(18.dp)
+                                                            )
+                                                        }
+                                                    }
+
+                                                    Surface(
+                                                        shape = RoundedCornerShape(8.dp),
+                                                        color = Color(0xFFFFE0E0)
+                                                    ) {
+                                                        IconButton(
+                                                            onClick = onEditRouteClick,
+                                                            modifier = Modifier.size(36.dp)
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Delete,
+                                                                contentDescription = null,
+                                                                tint = Color(0xFFFF5A5A),
+                                                                modifier = Modifier.size(18.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -178,10 +262,19 @@ fun OverviewScreen(
                     onClick = onCreatePointClick,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp)
+                        .padding(end = 24.dp)
+                        .navigationBarsPadding()
+                        .offset(y = (-16).dp)
+                        .size(72.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    containerColor = Color(0xFF9B8CFF),
+                    contentColor = Color.Black
                 ) {
-                    Text("+")
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp)
+                    )
                 }
             }
         }
