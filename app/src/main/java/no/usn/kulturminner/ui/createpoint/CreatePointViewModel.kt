@@ -20,7 +20,7 @@ class CreatePointViewModel(
     fun createPoint() {
         viewModelScope.launch {
             // Nullstill tidligere feil/suksess
-            _uiState.update { it.copy(isSaving = true, isSuccess = false, radiusError = null) }
+            _uiState.update { it.copy(isSaving = true, isSuccess = false, popupMessage = null) }
 
             // === VALIDERING AV RADIUS ===
             val radiusInt = _uiState.value.radius.toIntOrNull()
@@ -28,7 +28,7 @@ class CreatePointViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        radiusError = "Radius må være et tall på minst 10 meter"
+                        popupMessage = "Radius må være et tall på minst 10 meter"
                     )
                 }
                 return@launch

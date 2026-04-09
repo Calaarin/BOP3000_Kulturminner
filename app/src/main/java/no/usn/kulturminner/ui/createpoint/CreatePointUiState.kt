@@ -10,7 +10,7 @@ data class CreatePointUiState (
     val isSaving: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,         // Brukes som sjekk før man navigerer tilbake etter lagring
-    val radiusError: String? = null,        // Brukes til å gi feilmelding om ugyldig verdi for radius
+    val popupMessage: String? = null,        // Brukes til å gi feilmelding om ugyldig verdi for radius
 
     // Punkt-data (dataene oppdateres både fra server og brukerinput)
     val pointId: String? = null,
