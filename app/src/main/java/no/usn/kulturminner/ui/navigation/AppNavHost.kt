@@ -141,9 +141,9 @@ fun AppNavHost() {
                     onRadiusChange = viewModel::updateRadius,
                     onAudioUrlChange = viewModel::updateAudioUrl,
                     onUpdateSection = viewModel::updateSection,
+                    onExpandSectionCountDropdown = viewModel::expandSectionCountDropdown,
+                    onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
                     onSectionCountChange = viewModel::setSectionCount,
-                    onAddSection = viewModel::addSection,
-                    onRemoveSection = viewModel::removeSection,
                     onSaveClick = viewModel::createPoint,
                     onCancelClick = { navController.popBackStack() }
                 )

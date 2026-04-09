@@ -27,8 +27,8 @@ fun CreatePointScreen(
     onRadiusChange: (Int) -> Unit,
     onAudioUrlChange: (String) -> Unit,
     onUpdateSection: (Int, SectionUiState) -> Unit,
-    onAddSection: () -> Unit,
-    onRemoveSection: (Int) -> Unit,
+    onExpandSectionCountDropdown: () -> Unit,
+    onDismissSectionCountDropdown: () -> Unit,
     onSectionCountChange: (Int) -> Unit,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit
@@ -132,7 +132,7 @@ fun CreatePointScreen(
 
                     Box {
                         OutlinedButton(
-                            onClick = { uiState.sectionsExpanded = true },
+                            onClick = onExpandSectionCountDropdown,           // callback til ViewModel
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             border = BorderStroke(1.dp, Color.LightGray)
@@ -154,15 +154,14 @@ fun CreatePointScreen(
                         }
 
                         DropdownMenu(
-                            expanded = uiState.sectionsExpanded,
-                            onDismissRequest = { uiState.sectionsExpanded = false }
+                            expanded = uiState.isSectionCountDropdownExpanded,
+                            onDismissRequest = onDismissSectionCountDropdown   // callback til ViewModel
                         ) {
                             (1..5).forEach { number ->
                                 DropdownMenuItem(
                                     text = { Text("$number seksjoner") },
                                     onClick = {
-                                        onSectionCountChange(number)      // callback til ViewModel
-                                        uiState.sectionsExpanded = false
+                                        onSectionCountChange(number)           // callback til ViewModel
                                     }
                                 )
                             }

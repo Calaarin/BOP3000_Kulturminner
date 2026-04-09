@@ -71,25 +71,24 @@ class CreatePointViewModel(
         it.copy(sections = it.sections.toMutableList().apply { set(index, section) })
     }
 
-    // ===== Oppdatering av antall seksjoner =====
+    // ======= Håndtering av antall seksjon-skjema i skjermen =======
 
-    fun addSection() = _uiState.update {
-        it.copy(sections = it.sections + SectionUiState())
+    fun expandSectionCountDropdown() {
+        _uiState.update { it.copy(isSectionCountDropdownExpanded = true) }
     }
 
-    fun removeSection(index: Int) = _uiState.update {
-        it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
+    fun dismissSectionCountDropdown() {
+        _uiState.update { it.copy(isSectionCountDropdownExpanded = false) }
     }
 
-    // Oppdatert funksjon
+    // Funksjon for dynamisk endring av antall seksjoner basert på dropdownliste med alternativ
     fun setSectionCount(count: Int) {
         if (count < 1 || count > 5) return
-
         _uiState.update { current ->
             current.copy(
                 selectedSectionCount = count,
+                isSectionCountDropdownExpanded = false,   // lukker dropdown automatisk
                 sections = List(count) { index ->
-                    // Behold eksisterende data hvis vi har flere seksjoner enn før
                     current.sections.getOrNull(index) ?: SectionUiState()
                 }
             )

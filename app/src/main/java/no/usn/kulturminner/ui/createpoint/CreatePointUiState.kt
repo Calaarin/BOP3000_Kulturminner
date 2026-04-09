@@ -19,8 +19,11 @@ data class CreatePointUiState (
     val lng: Double = 0.0,
     val radius: Int = 50,                   // Standardverdi på 50 meter, men endres av brukerinput eller lasting fra server
     val audioUrl: String = "",
-    val selectedSectionCount: Int = 1,           // NYTT FELT
-    val sections: List<SectionUiState> = List(1) { SectionUiState() }
+    val sections: List<SectionUiState> = List(1) { SectionUiState() },
+
+    // Seksjonshåndtering
+    val selectedSectionCount: Int = 1,
+    val isSectionCountDropdownExpanded: Boolean = false,
 )
 
 // State for hver seksjon i seksjonslista (del av punkt-data)
