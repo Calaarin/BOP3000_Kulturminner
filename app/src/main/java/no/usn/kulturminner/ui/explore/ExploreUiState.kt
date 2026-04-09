@@ -1,6 +1,16 @@
 package no.usn.kulturminner.ui.explore
 
+import no.usn.kulturminner.data.model.Point
+
 data class ExploreUiState (
-    val isLoading: Boolean = false, // eksempel tilstandsvariabel
-    val error: String? = null
+    val areRoutesLoading: Boolean = false,
+    val isPointListLoading: Boolean = false,
+    val isPointLoading: Boolean = false,
+
+    val routeError: String? = null,
+    val pointListError: String? = null,
+    val pointError: String? = null,
+
+    val points: List<Point> = emptyList(),
+    val pointNearby: Point? = null   // Brukes for testing av MediaPanel når et punkt er innenfor radius
 )

@@ -3,66 +3,64 @@ package no.usn.kulturminner.ui.overview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import no.usn.kulturminner.data.repository.`OverviewRepository-dummydata`
+import no.usn.kulturminner.data.model.Point
+import no.usn.kulturminner.data.model.User
+import no.usn.kulturminner.data.repository.PointRepository
+import no.usn.kulturminner.data.repository.UserRepository
 
 class OverviewViewModel(
-    private val repository: `OverviewRepository-dummydata` = `OverviewRepository-dummydata`()
+    private val userRepository: UserRepository,
+    private val pointRepository: PointRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OverviewUiState())
-    val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
-    // Holder på "default"-rekkefølge (simulert dato/tid) for sortering
-    private var originalPoints: List<String> = emptyList()
+    val userId: String =  "u1" // id-en til dummybruker
 
     init {
-        fetchOverview()
+        fetchUserData(userId)
+        fetchMyPoints()
     }
 
-    private fun fetchOverview() {
+    fun fetchUserData(userId: String) {
         viewModelScope.launch {
+            _uiState.update { it.copy(isUserLoading = true, userError = null) }
 
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                error = null
-            )
-
-            repository.getDemoPoints()
-                .onSuccess { points ->
-                    originalPoints = points
-
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        demoPoints = points
-                    )
+            userRepository.getDummyUser(userId)         // Bruk getUser(userId) når serverkommunikasjon er klar
+                .onSuccess { user ->
+                    _uiState.update { it.copy(user = user, isUserLoading = false) }
                 }
-                .onFailure { throwable ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = throwable.message
-                    )
+                .onFailure { e ->
+                    _uiState.update { it.copy(userError = e.message, isUserLoading = false) }
                 }
         }
     }
 
-    // Sorter alfabetisk
-    fun sortAlphabetically() {
-        val sorted = _uiState.value.demoPoints.sorted()
+    fun fetchMyPoints() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-        _uiState.value = _uiState.value.copy(
-            demoPoints = sorted,
-            isSortedAlphabetically = true
-        )
+            pointRepository.getDummyPoints()           // Bruk getMyPoints(userId) når serverkommunikasjon er klar
+                .onSuccess { points ->
+                    _uiState.update { it.copy(points = points, isPointListLoading = false) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(pointError = e.message, isPointListLoading = false) }
+                }
+        }
     }
 
-    // Tilbake til default "dato/tid" sortering
-    fun sortByDate() {
-        _uiState.value = _uiState.value.copy(
-            demoPoints = originalPoints,
-            isSortedAlphabetically = false
-        )
+    fun changeSortType(newSortType: SortType) {
+        _uiState.update { current ->
+            val sortedPoints = when (newSortType) {
+                SortType.DATE -> current.points.sortedByDescending { it.updatedAt }
+                SortType.ALPHABETICAL -> current.points.sortedBy { it.title }
+            }
+            current.copy(points = sortedPoints, sortType = newSortType)
+        }
     }
 }

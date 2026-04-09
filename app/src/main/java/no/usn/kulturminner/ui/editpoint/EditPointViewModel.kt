@@ -1,43 +1,116 @@
 package no.usn.kulturminner.ui.editpoint
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import no.usn.kulturminner.data.model.Point
+import no.usn.kulturminner.data.repository.PointRepository
 
-class EditPointViewModel : ViewModel() {
+class EditPointViewModel(
+    private val pointRepository: PointRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditPointUiState())
-    val uiState: StateFlow<EditPointUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
-    fun onTitleChange(newTitle: String) {
-        _uiState.value = _uiState.value.copy(title = newTitle)
+    init {
+        loadPoint("p2")          // id skal egentlig hentes fra punktlisten i Admin Dashboard, sendt via NavHost
     }
 
-    fun onRadiusChange(newRadius: String) {
-        _uiState.value = _uiState.value.copy(radius = newRadius)
-    }
+    fun loadPoint(id: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
 
-    fun onAudioChange(newAudio: String) {
-        _uiState.value = _uiState.value.copy(audioUrl = newAudio)
-    }
-
-    fun loadPoint() {
-        _uiState.value = EditPointUiState(
-            title = "Atlantarhavsveien",
-            radius = "50",
-            audioUrl = "https://example.com/audio.mp3",
-            isLoading = false,
-            error = null
-        )
+            pointRepository.getSingleDummyPoint(id)            // Bytt til getPoint(id) senere når vi skal hente data fra server
+                .onSuccess { point ->
+                    _uiState.update {
+                        it.copy(
+                            pointId = point.id,
+                            title = point.title,
+                            lat = point.lat,
+                            lng = point.lng,
+                            radius = point.radius,
+                            audioUrl = point.audioUrl ?: "",
+                            sections = point.sections.map { it.toUiState() },
+                            isLoading = false
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
+        }
     }
 
     fun updatePoint() {
-        val current = _uiState.value
+        viewModelScope.launch {
+            _uiState.update { it.copy(
+                isSaving = true,
+                isSuccess = false,          // Boolean-sjekker og error må tilbakestilles ved start av utføring
+                error = null,
+            ) }
 
-        println("Saving point:")
-        println("Title: ${current.title}")
-        println("Radius: ${current.radius}")
-        println("Audio: ${current.audioUrl}")
+            // TODO: Før det kan lagres må det gjøres validering av rett datatyper/format/akseptabelt verdi-intervall
+            val pointToUpdate = Point(
+                id = _uiState.value.pointId,
+                title = _uiState.value.title,
+                lat = _uiState.value.lat,
+                lng = _uiState.value.lng,
+                radius = _uiState.value.radius,
+                audioUrl = _uiState.value.audioUrl.ifBlank { null },
+                sections = _uiState.value.sections.map { it.toSection() }
+            )
+
+            // isSuccess (i onSuccess greina) blir et flagg for at man kan fullføre redigeringen og navigeres tilbake til Admin-dashboard
+            // TODO: etter at serverkommunikasjon er på plass og man faktisk kan lagre endringer må denne navigeringen implementeres
+            // (men det gjøres i Screen/NavHost, basert på boolean-tilstanden i isSuccess, ikke her i ViewModel)
+            pointRepository.updatePoint(pointToUpdate)
+                .onSuccess {
+                    _uiState.update { it.copy(isSaving = false, isSuccess = true) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isSaving = false, error = e.message) }
+                }
+        }
+    }
+
+    // ====== Funksjoner for å oppdatere skjema (brukes fra skjermen - blir mye funksjonsreferanser her) =====
+
+    fun updateTitle(title: String) = _uiState.update {
+        it.copy(title = title)
+    }
+
+    fun updateLat(lat: Double) = _uiState.update {
+        it.copy(lat = lat)
+    }
+
+    fun updateLng(lng: Double) = _uiState.update {
+        it.copy(lng = lng)
+    }
+
+    fun updateRadius(radius: Int) = _uiState.update {
+        it.copy(radius = radius)
+    }
+
+    fun updateAudioUrl(audioUrl: String) = _uiState.update {
+        it.copy(audioUrl = audioUrl)
+    }
+
+    fun updateSection(index: Int, section: SectionUiState) = _uiState.update {
+        it.copy(sections = it.sections.toMutableList().apply { set(index, section) })
+    }
+
+    // ===== Oppdatering av antall seksjoner =====
+
+
+    fun addSection() = _uiState.update {
+        it.copy(sections = it.sections + SectionUiState())
+    }
+
+    fun removeSection(index: Int) = _uiState.update {
+        it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
     }
 }
