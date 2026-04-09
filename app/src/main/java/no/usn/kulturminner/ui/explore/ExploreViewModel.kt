@@ -18,6 +18,7 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
+        fetchSinglePoint("p4")
     }
 
     // ======================================= EXPLOREMAP =======================================
