@@ -35,7 +35,7 @@ data class SectionUiState(
 // ===== Mapperfunksjon mellom Domain/dataklasse og UiState (Extension-funksjon for UiState) =====
 
 
-// Brukes i funksjonen updatePoint  i EditPointViewModel
+// Brukes i funksjonen updatePoint i EditPointViewModel
 fun SectionUiState.toSection() = Section(
     id = id,
     heading = heading.ifBlank { null },
