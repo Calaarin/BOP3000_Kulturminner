@@ -58,7 +58,7 @@ fun EditPointScreen(
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                // ← Her kommer alt det egentlige skjemaet senere
+                // Bytt ut med det egentlige skjemaet senere
                 // (samme felter som i CreatePointScreen)
             }
         }
