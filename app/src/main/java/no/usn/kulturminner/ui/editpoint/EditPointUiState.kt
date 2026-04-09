@@ -50,14 +50,3 @@ fun SectionUiState.toSection() = Section(
     imageUrl = imageUrl.ifBlank { null },
     videoUrl = videoUrl.ifBlank { null }
 )
-
-// Denne trengs sannsynligvis ikke (men lar den ligge foreløpig)
-fun Point.toEditUiState() = EditPointUiState(
-    pointId = id,
-    title = title,
-    lat = lat,
-    lng = lng,
-    radius = radius,
-    audioUrl = audioUrl ?: "",
-    sections = sections.map { it.toUiState() }
-)
