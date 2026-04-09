@@ -21,49 +21,16 @@ class OverviewViewModel(
 
     val userId: String =  "u1"
 
-    // Holder på "default"-rekkefølge (simulert dato/tid) for sortering
-    // private var originalPoints: List<String> = emptyList()
-
     init {
         fetchUserData(userId)
         fetchMyPoints()
     }
-    /* Gammel dummydatafunksjon
-
-    private fun fetchOverview() {
-        viewModelScope.launch {
-
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                error = null
-            )
-
-            pointRepository.getDemoPoints()
-                .onSuccess { points ->
-                    originalPoints = points
-
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        demoPoints = points
-                    )
-                }
-                .onFailure { throwable ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = throwable.message
-                    )
-                }
-        }
-    }
-     */
-
-    // =================== Nye dummydatafunksjoner =======================
 
     fun fetchUserData(userId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isUserLoading = true, userError = null) }
 
-            userRepository.getUser(userId)
+            userRepository.getDummyUser(userId)         // Bruk getUser(userId) når serverkommunikasjon er klar
                 .onSuccess { user ->
                     _uiState.update { it.copy(user = user, isUserLoading = false) }
                 }
@@ -96,26 +63,4 @@ class OverviewViewModel(
             current.copy(points = sortedPoints, sortType = newSortType)
         }
     }
-
-    /*
-
-    // Sorter alfabetisk
-    fun sortAlphabetically() {
-        val sorted = _uiState.value.demoPoints.sorted()
-
-        _uiState.value = _uiState.value.copy(
-            demoPoints = sorted,
-            isSortedAlphabetically = true
-        )
-    }
-
-    // Tilbake til default "dato/tid" sortering
-    fun sortByDate() {
-        _uiState.value = _uiState.value.copy(
-            demoPoints = originalPoints,
-            isSortedAlphabetically = false
-        )
-    }
-
-     */
 }
