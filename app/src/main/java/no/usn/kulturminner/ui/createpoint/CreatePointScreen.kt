@@ -2,19 +2,8 @@ package no.usn.kulturminner.ui.createpoint
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -22,48 +11,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CreatePointScreen() {
-    var title by rememberSaveable { mutableStateOf("") }
-    var radius by rememberSaveable { mutableStateOf("") }
-    var audioLink by rememberSaveable { mutableStateOf("") }
-
-    var section1Title by rememberSaveable { mutableStateOf("") }
-    var section1Text by rememberSaveable { mutableStateOf("") }
-    var section1Image by rememberSaveable { mutableStateOf("") }
-    var section1Video by rememberSaveable { mutableStateOf("") }
-
-    var section2Title by rememberSaveable { mutableStateOf("") }
-    var section2Text by rememberSaveable { mutableStateOf("") }
-    var section2Image by rememberSaveable { mutableStateOf("") }
-    var section2Video by rememberSaveable { mutableStateOf("") }
-
-    var sectionsExpanded by rememberSaveable { mutableStateOf(false) }
-    var selectedSections by rememberSaveable { mutableStateOf("1 seksjoner") }
-
+fun CreatePointScreen(
+    uiState: CreatePointUiState,
+    onTitleChange: (String) -> Unit,
+    onLatChange: (Double) -> Unit,
+    onLngChange: (Double) -> Unit,
+    onRadiusChange: (Int) -> Unit,
+    onAudioUrlChange: (String) -> Unit,
+    onUpdateSection: (Int, SectionUiState) -> Unit,
+    onAddSection: () -> Unit,
+    onRemoveSection: (Int) -> Unit,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
     val backgroundColor = Color(0xFFF4F1F8)
     val panelColor = Color(0xFFE7E7E7)
     val sectionHeaderColor = Color(0xFFD8D0F6)
@@ -78,10 +46,10 @@ fun CreatePointScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 140.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 140.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            // Kartseksjon øverst for å ligne mer på Figma
+            // Kart-plassholder (senere erstattes med ekte kart)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -92,9 +60,7 @@ fun CreatePointScreen() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(
                             shape = RoundedCornerShape(24.dp),
                             color = Color(0xFF7AA8F8)
@@ -102,25 +68,15 @@ fun CreatePointScreen() {
                             Icon(
                                 imageVector = Icons.Outlined.LocationOn,
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .size(28.dp),
+                                modifier = Modifier.padding(10.dp).size(28.dp),
                                 tint = Color.White
                             )
                         }
-
                         Spacer(modifier = Modifier.height(10.dp))
-
                         Button(
-                            onClick = { },
+                            onClick = { /* TODO: Åpne kart for å sette punkt */ },
                             shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF6F63D9)
-                            ),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                                horizontal = 14.dp,
-                                vertical = 6.dp
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6F63D9))
                         ) {
                             Text("Trykk for å sette punkt")
                         }
@@ -141,29 +97,26 @@ fun CreatePointScreen() {
                 ) {
                     FormLabel("TITTEL")
                     SmallInputField(
-                        value = title,
-                        onValueChange = { title = it },
+                        value = uiState.title,
+                        onValueChange = onTitleChange,
                         placeholder = "Navn på opplevelsespunkt"
                     )
 
                     FormLabel("RADIUS (meter)")
                     SmallInputField(
-                        value = radius,
-                        onValueChange = { radius = it },
+                        value = uiState.radius.toString(),
+                        onValueChange = { onRadiusChange(it.toIntOrNull() ?: 50) },
                         placeholder = "F.eks 50"
                     )
 
                     FormLabel("LYDFIL")
                     SmallInputField(
-                        value = audioLink,
-                        onValueChange = { audioLink = it },
-                        placeholder = "Lim inn URL til lydfil eller last opp fil"
+                        value = uiState.audioUrl,
+                        onValueChange = onAudioUrlChange,
+                        placeholder = "Lim inn URL eller last opp fil"
                     )
 
-                    UploadButton(
-                        text = "Last opp fil",
-                        borderColor = uploadBorderColor
-                    )
+                    UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
                     Text(
                         text = "Støttende formater: mp3, wav",
@@ -171,163 +124,58 @@ fun CreatePointScreen() {
                         color = Color.Gray
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
+                    // Dynamisk antall seksjoner
                     FormLabel("ANTALL SEKSJONER")
-
-                    // Enkel dropdown som fungerer uten ExposedDropdownMenu
-                    Box {
-                        OutlinedButton(
-                            onClick = { sectionsExpanded = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, Color.LightGray)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onAddSection,
+                            enabled = uiState.sections.size < 5
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = selectedSections,
-                                    color = Color.Black
-                                )
-                                Icon(
-                                    imageVector = Icons.Outlined.ArrowDropDown,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-
-                        DropdownMenu(
-                            expanded = sectionsExpanded,
-                            onDismissRequest = { sectionsExpanded = false }
-                        ) {
-                            listOf("1 seksjoner", "2 seksjoner", "3 seksjoner").forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        selectedSections = option
-                                        sectionsExpanded = false
-                                    }
-                                )
-                            }
+                            Text("Legg til seksjon")
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    // Dynamiske seksjoner
+                    uiState.sections.forEachIndexed { index, section ->
+                        SectionHeader("Seksjon ${index + 1}", sectionHeaderColor)
 
-                    // Seksjon 1
-                    SectionHeader("Seksjon 1", sectionHeaderColor)
+                        FormLabel("OVERSKRIFT")
+                        SmallInputField(
+                            value = section.heading,
+                            onValueChange = { onUpdateSection(index, section.copy(heading = it)) },
+                            placeholder = "Tittel for seksjon"
+                        )
 
-                    FormLabel("OVERSKRIFT")
-                    SmallInputField(
-                        value = section1Title,
-                        onValueChange = { section1Title = it },
-                        placeholder = "Tittel for seksjon"
-                    )
+                        FormLabel("TEKSTAVSNITT")
+                        LargeInputField(
+                            value = section.text,
+                            onValueChange = { onUpdateSection(index, section.copy(text = it)) },
+                            placeholder = "Skriv inn innholdstekst..."
+                        )
 
-                    FormLabel("TEKSTAVSNITT")
-                    LargeInputField(
-                        value = section1Text,
-                        onValueChange = { section1Text = it },
-                        placeholder = "Skriv inn innholdstekst..."
-                    )
+                        FormLabel("BILDE")
+                        SmallInputField(
+                            value = section.imageUrl,
+                            onValueChange = { onUpdateSection(index, section.copy(imageUrl = it)) },
+                            placeholder = "Lim inn URL eller last opp fil"
+                        )
+                        UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
-                    FormLabel("BILDE")
-                    SmallInputField(
-                        value = section1Image,
-                        onValueChange = { section1Image = it },
-                        placeholder = "Lim inn URL til bilde eller last opp fil"
-                    )
-
-                    UploadButton(
-                        text = "Last opp fil",
-                        borderColor = uploadBorderColor
-                    )
-
-                    Text(
-                        text = "Støttende formater: jpg, jpeg, png",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-
-                    FormLabel("VIDEO")
-                    SmallInputField(
-                        value = section1Video,
-                        onValueChange = { section1Video = it },
-                        placeholder = "Lim inn URL til video eller last opp fil"
-                    )
-
-                    UploadButton(
-                        text = "Last opp fil",
-                        borderColor = uploadBorderColor
-                    )
-
-                    Text(
-                        text = "Støttende formater: mp4",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Seksjon 2
-                    SectionHeader("Seksjon 2", sectionHeaderColor)
-
-                    FormLabel("OVERSKRIFT")
-                    SmallInputField(
-                        value = section2Title,
-                        onValueChange = { section2Title = it },
-                        placeholder = "Tittel for seksjon"
-                    )
-
-                    FormLabel("TEKSTAVSNITT")
-                    LargeInputField(
-                        value = section2Text,
-                        onValueChange = { section2Text = it },
-                        placeholder = "Skriv inn innholdstekst..."
-                    )
-
-                    FormLabel("BILDE")
-                    SmallInputField(
-                        value = section2Image,
-                        onValueChange = { section2Image = it },
-                        placeholder = "Lim inn URL til bilde eller last opp fil"
-                    )
-
-                    UploadButton(
-                        text = "Last opp fil",
-                        borderColor = uploadBorderColor
-                    )
-
-                    Text(
-                        text = "Støttende formater: jpg, jpeg, png",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-
-                    FormLabel("VIDEO")
-                    SmallInputField(
-                        value = section2Video,
-                        onValueChange = { section2Video = it },
-                        placeholder = "Lim inn URL til video eller last opp fil"
-                    )
-
-                    UploadButton(
-                        text = "Last opp fil",
-                        borderColor = uploadBorderColor
-                    )
-
-                    Text(
-                        text = "Støttende formater: mp4",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                        FormLabel("VIDEO")
+                        SmallInputField(
+                            value = section.videoUrl,
+                            onValueChange = { onUpdateSection(index, section.copy(videoUrl = it)) },
+                            placeholder = "Lim inn URL eller last opp fil"
+                        )
+                        UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
+                    }
                 }
             }
         }
 
+        // Bunnpanel med knapper
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -338,34 +186,31 @@ fun CreatePointScreen() {
             shadowElevation = 8.dp,
             color = backgroundColor
         ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 HorizontalDivider()
-
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Knapper lagt under hverandre for å ligne bildet mer
                 Button(
-                    onClick = { },
+                    onClick = onSaveClick,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2F80ED)
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
+                    enabled = !uiState.isSaving
                 ) {
-                    Text("Lagre punkt")
+                    if (uiState.isSaving) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                    } else {
+                        Text("Lagre punkt")
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedButton(
-                    onClick = { },
+                    onClick = onCancelClick,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFFE25C5C)
-                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFE25C5C)),
                     border = BorderStroke(1.dp, Color(0xFFF1C5C5))
                 ) {
                     Text("Avbryt")

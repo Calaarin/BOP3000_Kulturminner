@@ -1,6 +1,5 @@
 package no.usn.kulturminner.ui.editpoint
 
-import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.model.Section
 
 data class EditPointUiState(

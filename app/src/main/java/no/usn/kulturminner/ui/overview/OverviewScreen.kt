@@ -14,18 +14,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 
 @Composable
 fun OverviewScreen(
     uiState: OverviewUiState,
     onCreatePointClick: () -> Unit,
     onEditPointClick: () -> Unit,
-    onEditRouteClick: () -> Unit,
+    onDeletePointClick: () -> Unit,
     onSortAlphabetically: () -> Unit,
     onSortByDate: () -> Unit
 ) {
     when {
-        uiState.isLoading -> {
+        uiState.isUserLoading || uiState.isPointListLoading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -34,19 +36,19 @@ fun OverviewScreen(
             }
         }
 
-        uiState.error != null -> {
+        uiState.pointError != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Feil: ${uiState.error}",
+                    text = "Feil: ${uiState.pointError}",
                     color = MaterialTheme.colorScheme.error
                 )
             }
         }
 
-        uiState.demoPoints.isNotEmpty() -> {
+        uiState.points.isNotEmpty() -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -59,6 +61,7 @@ fun OverviewScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 120.dp)
                 ) {
+                    // === ADMIN HEADER ===
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -67,9 +70,7 @@ fun OverviewScreen(
                                 containerColor = Color(0xFFE3DDF6)
                             )
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,20 +84,14 @@ fun OverviewScreen(
                                             text = "ADMIN",
                                             color = Color.White,
                                             style = MaterialTheme.typography.labelSmall,
-                                            modifier = Modifier.padding(
-                                                horizontal = 10.dp,
-                                                vertical = 4.dp
-                                            )
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                         )
                                     }
 
                                     OutlinedButton(
-                                        onClick = { },
+                                        onClick = { /* TODO: Endre passord */ },
                                         shape = RoundedCornerShape(10.dp),
-                                        contentPadding = PaddingValues(
-                                            horizontal = 12.dp,
-                                            vertical = 6.dp
-                                        )
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
                                         Text("Endre passord")
                                     }
@@ -105,14 +100,14 @@ fun OverviewScreen(
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 Text(
-                                    text = "Kari Nordamann",
+                                    text = "${uiState.user?.firstName} ${uiState.user?.lastName}",
                                     style = MaterialTheme.typography.headlineSmall
                                 )
 
                                 Spacer(modifier = Modifier.height(4.dp))
 
                                 Text(
-                                    text = "@kari.nordmann",
+                                    text = "@${uiState.user?.username}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.Gray
                                 )
@@ -126,6 +121,7 @@ fun OverviewScreen(
                         }
                     }
 
+                    // === OPPLEVELSESPUNKTER HEADER ===
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -134,9 +130,7 @@ fun OverviewScreen(
                                 containerColor = Color(0xFFE7E7E7)
                             )
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -149,14 +143,11 @@ fun OverviewScreen(
 
                                     Box(
                                         modifier = Modifier
-                                            .background(
-                                                color = Color(0xFF9ED8F7),
-                                                shape = RoundedCornerShape(12.dp)
-                                            )
+                                            .background(Color(0xFF9ED8F7), RoundedCornerShape(12.dp))
                                             .padding(horizontal = 10.dp, vertical = 4.dp)
                                     ) {
                                         Text(
-                                            text = uiState.demoPoints.size.toString(),
+                                            text = uiState.points.size.toString(),
                                             style = MaterialTheme.typography.labelLarge
                                         )
                                     }
@@ -164,93 +155,76 @@ fun OverviewScreen(
 
                                 Spacer(modifier = Modifier.height(14.dp))
 
-                                Button(
-                                    onClick = onSortAlphabetically,
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF2E1E9B)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(
+                                        onClick = onSortAlphabetically,
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1E9B))
+                                    ) {
+                                        Text("Sorter alfabetisk")
+                                    }
+
+                                    Button(
+                                        onClick = onSortByDate,
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1E9B))
+                                    ) {
+                                        Text("Sorter etter dato")
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // === LISTE MED PUNKTER ===
+                    items(uiState.points.size) { index ->
+                        val point = uiState.points[index]
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = point.title,
+                                        style = MaterialTheme.typography.titleMedium
                                     )
-                                ) {
-                                    Text("Filtrer")
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    val date = point.updatedAt?.let {
+                                        DateTimeFormatter.ofPattern("dd. MMM yyyy")
+                                            .withZone(java.time.ZoneId.systemDefault())
+                                            .format(it)
+                                    } ?: ""
+                                    Text(
+                                        text = "Endret $date",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.Gray
+                                    )
                                 }
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    IconButton(
+                                        onClick = onEditPointClick,
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = null, tint = Color.DarkGray)
+                                    }
 
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    uiState.demoPoints.forEach { point ->
-                                        Card(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            shape = RoundedCornerShape(12.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = Color(0xFFF7F7F7)
-                                            )
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(12.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.weight(1f)
-                                                ) {
-                                                    Text(
-                                                        text = point,
-                                                        style = MaterialTheme.typography.titleMedium
-                                                    )
-
-                                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                                    Text(
-                                                        text = "Endret 20. mars 2026",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = Color.Gray
-                                                    )
-                                                }
-
-                                                Row(
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Surface(
-                                                        shape = RoundedCornerShape(8.dp),
-                                                        color = Color(0xFFE8E8E8)
-                                                    ) {
-                                                        IconButton(
-                                                            onClick = onEditPointClick,
-                                                            modifier = Modifier.size(36.dp)
-                                                        ) {
-                                                            Icon(
-                                                                imageVector = Icons.Default.Edit,
-                                                                contentDescription = null,
-                                                                tint = Color.DarkGray,
-                                                                modifier = Modifier.size(18.dp)
-                                                            )
-                                                        }
-                                                    }
-
-                                                    Surface(
-                                                        shape = RoundedCornerShape(8.dp),
-                                                        color = Color(0xFFFFE0E0)
-                                                    ) {
-                                                        IconButton(
-                                                            onClick = onEditRouteClick,
-                                                            modifier = Modifier.size(36.dp)
-                                                        ) {
-                                                            Icon(
-                                                                imageVector = Icons.Default.Delete,
-                                                                contentDescription = null,
-                                                                tint = Color(0xFFFF5A5A),
-                                                                modifier = Modifier.size(18.dp)
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                    IconButton(
+                                        onClick = onDeletePointClick,
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF5A5A))
                                     }
                                 }
                             }
@@ -258,6 +232,7 @@ fun OverviewScreen(
                     }
                 }
 
+                // Floating Action Button
                 FloatingActionButton(
                     onClick = onCreatePointClick,
                     modifier = Modifier
@@ -270,11 +245,7 @@ fun OverviewScreen(
                     containerColor = Color(0xFF9B8CFF),
                     contentColor = Color.Black
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp)
-                    )
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(36.dp))
                 }
             }
         }

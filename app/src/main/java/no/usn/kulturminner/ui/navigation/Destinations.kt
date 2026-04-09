@@ -8,7 +8,4 @@ sealed class Destinations(val route: String) {
 
     object CreatePoint : Destinations("create_point")
     object EditPoint : Destinations("edit_point")
-
-    object CreateRoute : Destinations("create_route")
-    object EditRoute : Destinations("edit_route")
 }

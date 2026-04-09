@@ -26,10 +26,6 @@ import no.usn.kulturminner.ui.createpoint.CreatePointScreen
 import no.usn.kulturminner.ui.createpoint.CreatePointViewModel
 import no.usn.kulturminner.ui.editpoint.EditPointScreen
 import no.usn.kulturminner.ui.editpoint.EditPointViewModel
-import no.usn.kulturminner.ui.createroute.CreateRouteScreen
-import no.usn.kulturminner.ui.createroute.CreateRouteViewModel
-import no.usn.kulturminner.ui.editroute.EditRouteScreen
-import no.usn.kulturminner.ui.editroute.EditRouteViewModel
 import no.usn.kulturminner.ui.components.TopBar
 import no.usn.kulturminner.ui.components.BottomNavBar
 import no.usn.kulturminner.ui.createpoint.CreatePointViewModelFactory
@@ -124,21 +120,32 @@ fun AppNavHost() {
                     onEditPointClick = {
                         navController.navigate(Destinations.EditPoint.route)
                     },
-                    onEditRouteClick = {
-                        navController.navigate(Destinations.EditRoute.route)
-                    },
+                    onDeletePointClick = {}, // Ingenting gjøres enda. TODO: lage en slettingsfunksjon i ViewModel når serverkommunikasjon er på plass
                     onSortAlphabetically = { viewModel.changeSortType(SortType.ALPHABETICAL) },
                     onSortByDate = { viewModel.changeSortType(SortType.DATE) }
                 )
             }
 
-            // --- CREATE POINT ---
+            /// --- CREATE POINT ---
             composable(Destinations.CreatePoint.route) {
                 val viewModel: CreatePointViewModel = viewModel(
                     factory = CreatePointViewModelFactory(pointRepo)
                 )
                 val uiState by viewModel.uiState.collectAsState()
-                CreatePointScreen(uiState = uiState)
+
+                CreatePointScreen(
+                    uiState = uiState,
+                    onTitleChange = viewModel::updateTitle,
+                    onLatChange = viewModel::updateLat,
+                    onLngChange = viewModel::updateLng,
+                    onRadiusChange = viewModel::updateRadius,
+                    onAudioUrlChange = viewModel::updateAudioUrl,
+                    onUpdateSection = viewModel::updateSection,
+                    onAddSection = viewModel::addSection,
+                    onRemoveSection = viewModel::removeSection,
+                    onSaveClick = viewModel::createPoint,
+                    onCancelClick = { navController.popBackStack() }
+                )
             }
 
             // --- EDIT POINT ---
@@ -147,21 +154,9 @@ fun AppNavHost() {
                     factory = EditPointViewModelFactory(pointRepo)
                 )
                 val uiState by viewModel.uiState.collectAsState()
-                EditPointScreen(uiState = uiState)
-            }
-
-            // --- CREATE ROUTE ---
-            composable(Destinations.CreateRoute.route) {
-                val viewModel: CreateRouteViewModel = viewModel()
-                val uiState by viewModel.uiState.collectAsState()
-                CreateRouteScreen(uiState = uiState)
-            }
-
-            // --- EDIT ROUTE ---
-            composable(Destinations.EditRoute.route) {
-                val viewModel: EditRouteViewModel = viewModel()
-                val uiState by viewModel.uiState.collectAsState()
-                EditRouteScreen(uiState = uiState)
+                EditPointScreen(
+                    uiState = uiState
+                )
             }
         }
     }
