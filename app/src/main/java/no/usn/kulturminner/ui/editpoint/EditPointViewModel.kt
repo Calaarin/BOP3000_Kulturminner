@@ -32,7 +32,7 @@ class EditPointViewModel(
                             title = point.title,
                             lat = point.lat,
                             lng = point.lng,
-                            radius = point.radius,
+                            radius = point.radius.toString(),
                             audioUrl = point.audioUrl ?: "",
                             sections = point.sections.map { it.toUiState() },
                             isLoading = false
@@ -53,13 +53,24 @@ class EditPointViewModel(
                 error = null,
             ) }
 
-            // TODO: Før det kan lagres må det gjøres validering av rett datatyper/format/akseptabelt verdi-intervall
+            // === VALIDERING AV RADIUS ===
+            val radiusInt = _uiState.value.radius.toIntOrNull()
+            if (radiusInt == null || radiusInt < 5) {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        error = "Radius må være et tall på minst 5 meter"   // Vi kan diskutere hva som burde være minimum
+                    )
+                }
+                return@launch
+            }
+
             val pointToUpdate = Point(
                 id = _uiState.value.pointId,
                 title = _uiState.value.title,
                 lat = _uiState.value.lat,
                 lng = _uiState.value.lng,
-                radius = _uiState.value.radius,
+                radius = radiusInt,                                 // String → Int
                 audioUrl = _uiState.value.audioUrl.ifBlank { null },
                 sections = _uiState.value.sections.map { it.toSection() }
             )
@@ -91,7 +102,7 @@ class EditPointViewModel(
         it.copy(lng = lng)
     }
 
-    fun updateRadius(radius: Int) = _uiState.update {
+    fun updateRadius(radius: String) = _uiState.update {
         it.copy(radius = radius)
     }
 

@@ -24,11 +24,11 @@ class CreatePointViewModel(
 
             // === VALIDERING AV RADIUS ===
             val radiusInt = _uiState.value.radius.toIntOrNull()
-            if (radiusInt == null || radiusInt < 10) {
+            if (radiusInt == null || radiusInt < 5) {
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        popupMessage = "Radius må være et tall på minst 10 meter"
+                        popupMessage = "Radius må være et tall på minst 5 meter"    // Vi kan diskutere hva som burde være minimum
                     )
                 }
                 return@launch

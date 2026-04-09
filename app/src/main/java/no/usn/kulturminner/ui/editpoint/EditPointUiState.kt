@@ -8,15 +8,21 @@ data class EditPointUiState(
     val isSaving: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,         // Brukes som sjekk før man navigerer tilbake etter lagring
+    val popupMessage: String? = null,        // Brukes til å gi feilmelding om ugyldig verdi for radius
 
     // Punkt-data (dataene oppdateres både fra server og brukerinput)
     val pointId: String? = null,
     val title: String = "",
     val lat: Double = 0.0,
     val lng: Double = 0.0,
-    val radius: Int = 50,                   // Standardverdi på 50 meter, men endres av brukerinput eller lasting fra server
+    val radius: String = "",                 // Endrer denne til String for bedre UX
     val audioUrl: String = "",
-    val sections: List<SectionUiState> = listOf(SectionUiState())
+    val sections: List<SectionUiState> = List(1) { SectionUiState() },
+
+    // Seksjonshåndtering
+    var sectionsExpanded: Boolean = false,
+    val selectedSectionCount: Int = 1,
+    val isSectionCountDropdownExpanded: Boolean = false,
 )
 
 // State for hver seksjon i seksjonslista (del av punkt-data)

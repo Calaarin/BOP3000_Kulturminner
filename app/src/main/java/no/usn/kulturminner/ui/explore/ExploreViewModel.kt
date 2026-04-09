@@ -18,7 +18,7 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
-        fetchSinglePoint("p4")
+        fetchSinglePoint("p1") // Bytt til enten "p2" "p3" eller "p4" for å teste layout av andre datasammensetninger
     }
 
     // ======================================= EXPLOREMAP =======================================
