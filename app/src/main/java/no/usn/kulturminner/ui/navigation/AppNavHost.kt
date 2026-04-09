@@ -11,11 +11,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.currentBackStackEntryAsState
+
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
 import no.usn.kulturminner.data.repository.UserRepositoryImpl
 import no.usn.kulturminner.data.source.PointSource
 import no.usn.kulturminner.data.source.UserSource
-
 import no.usn.kulturminner.ui.auth.LoginScreen
 import no.usn.kulturminner.ui.auth.LoginViewModel
 import no.usn.kulturminner.ui.explore.ExploreScreen
