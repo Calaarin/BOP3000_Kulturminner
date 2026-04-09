@@ -17,14 +17,14 @@ class EditPointViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        // loadPoint("p1")          // id skal egentlig hentes fra punktlisten i Admin Dashboard, sendt via NavHost
+        loadPoint("p2")          // id skal egentlig hentes fra punktlisten i Admin Dashboard, sendt via NavHost
     }
 
     fun loadPoint(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            pointRepository.getPoint(id)
+            pointRepository.getSingleDummyPoint(id)            // Bytt til getPoint(id) senere når vi skal hente data fra server
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(
@@ -49,10 +49,11 @@ class EditPointViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(
                 isSaving = true,
-                isSuccess = false,          // Boolean-sjekker må tilbakestilles ved start av utføring
+                isSuccess = false,          // Boolean-sjekker og error må tilbakestilles ved start av utføring
                 error = null,
             ) }
 
+            // TODO: Før det kan lagres må det gjøres validering av rett datatyper/format/akseptabelt verdi-intervall
             val pointToUpdate = Point(
                 id = _uiState.value.pointId,
                 title = _uiState.value.title,
@@ -63,9 +64,12 @@ class EditPointViewModel(
                 sections = _uiState.value.sections.map { it.toSection() }
             )
 
+            // isSuccess (i onSuccess greina) blir et flagg for at man kan fullføre redigeringen og navigeres tilbake til Admin-dashboard
+            // TODO: etter at serverkommunikasjon er på plass og man faktisk kan lagre endringer må denne navigeringen implementeres
+            // (men det gjøres i Screen/NavHost, basert på boolean-tilstanden i isSuccess, ikke her i ViewModel)
             pointRepository.updatePoint(pointToUpdate)
                 .onSuccess {
-                    _uiState.update { it.copy(isSaving = false, isSuccess = true) }         // Dette blir et flagg for at man kan fullføre redigeringen og navigeres tilbake til Admin dashboard
+                    _uiState.update { it.copy(isSaving = false, isSuccess = true) }
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(isSaving = false, error = e.message) }
@@ -73,18 +77,40 @@ class EditPointViewModel(
         }
     }
 
-    // Oppdateringsfunksjoner (brukes fra skjermen - blir mye funksjonsreferanser her)
-    fun updateTitle(title: String) = _uiState.update { it.copy(title = title) }
-    fun updateLat(lat: Double) = _uiState.update { it.copy(lat = lat) }
-    fun updateLng(lng: Double) = _uiState.update { it.copy(lng = lng) }
-    fun updateRadius(radius: Int) = _uiState.update { it.copy(radius = radius) }
-    fun updateAudioUrl(audioUrl: String) = _uiState.update { it.copy(audioUrl = audioUrl) }
+    // ====== Funksjoner for å oppdatere skjema (brukes fra skjermen - blir mye funksjonsreferanser her) =====
 
-    fun addSection() = _uiState.update { it.copy(sections = it.sections + SectionUiState()) }
-    fun removeSection(index: Int) = _uiState.update {
-        it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
+    fun updateTitle(title: String) = _uiState.update {
+        it.copy(title = title)
     }
+
+    fun updateLat(lat: Double) = _uiState.update {
+        it.copy(lat = lat)
+    }
+
+    fun updateLng(lng: Double) = _uiState.update {
+        it.copy(lng = lng)
+    }
+
+    fun updateRadius(radius: Int) = _uiState.update {
+        it.copy(radius = radius)
+    }
+
+    fun updateAudioUrl(audioUrl: String) = _uiState.update {
+        it.copy(audioUrl = audioUrl)
+    }
+
     fun updateSection(index: Int, section: SectionUiState) = _uiState.update {
         it.copy(sections = it.sections.toMutableList().apply { set(index, section) })
+    }
+
+    // ===== Oppdatering av antall seksjoner =====
+
+
+    fun addSection() = _uiState.update {
+        it.copy(sections = it.sections + SectionUiState())
+    }
+
+    fun removeSection(index: Int) = _uiState.update {
+        it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
     }
 }

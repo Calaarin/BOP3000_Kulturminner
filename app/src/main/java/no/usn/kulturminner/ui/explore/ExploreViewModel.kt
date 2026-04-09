@@ -20,16 +20,46 @@ class ExploreViewModel(
         fetchAllPoints()
     }
 
+    // ======================================= EXPLOREMAP =======================================
+
+    // Hente alle punkt til kart
     fun fetchAllPoints() {
         viewModelScope.launch {
-            _uiState.update { it.copy(arePointsLoading = true, pointError = null) }
+            _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getDummyPoints()           // Bytt til getAllPoints() når vi skal hente data fra server
+            pointRepository.getDummyPoints()           // Bytt til getAllPoints() senere når vi skal hente data fra server
                 .onSuccess { points ->
-                    _uiState.update { it.copy(points = points, arePointsLoading = false) }
+                    _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }
                 .onFailure { e ->
-                    _uiState.update { it.copy(pointError = e.message, arePointsLoading = false) }
+                    _uiState.update { it.copy(pointError = e.message, isPointListLoading = false) }
+                }
+        }
+    }
+
+    // ======================================= MEDIAPANEL =======================================
+
+    // Hente et enkelt punkt til MediaPanel
+    fun fetchSinglePoint(id: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isPointLoading = true, pointError = null) }
+
+            pointRepository.getSingleDummyPoint(id)     // Bytt til getPoint(id) senere når vi skal hente data fra server
+                .onSuccess { point ->
+                    _uiState.update {
+                        it.copy(
+                            pointNearby = point,
+                            isPointLoading = false
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update {
+                        it.copy(
+                            isPointLoading = false,
+                            pointError = error.message
+                        )
+                    }
                 }
         }
     }

@@ -51,7 +51,7 @@ fun SectionUiState.toSection() = Section(
     videoUrl = videoUrl.ifBlank { null }
 )
 
-// Denne trengs kanskje ikke (men lar den ligge foreløpig)
+// Denne trengs sannsynligvis ikke (men lar den ligge foreløpig)
 fun Point.toEditUiState() = EditPointUiState(
     pointId = id,
     title = title,

@@ -4,9 +4,11 @@ import no.usn.kulturminner.data.model.Point
 
 data class ExploreUiState (
     val areRoutesLoading: Boolean = false,
-    val arePointsLoading: Boolean = false,
+    val isPointListLoading: Boolean = false,
+    val isPointLoading: Boolean = false,
 
     val routeError: String? = null,
+    val pointListError: String? = null,
     val pointError: String? = null,
 
     val points: List<Point> = emptyList(),
