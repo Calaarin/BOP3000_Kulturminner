@@ -141,6 +141,7 @@ fun AppNavHost() {
                     onRadiusChange = viewModel::updateRadius,
                     onAudioUrlChange = viewModel::updateAudioUrl,
                     onUpdateSection = viewModel::updateSection,
+                    onSectionCountChange = viewModel::setSectionCount,
                     onAddSection = viewModel::addSection,
                     onRemoveSection = viewModel::removeSection,
                     onSaveClick = viewModel::createPoint,

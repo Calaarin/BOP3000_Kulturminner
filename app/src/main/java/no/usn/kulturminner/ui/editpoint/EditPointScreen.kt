@@ -21,4 +21,22 @@ import androidx.compose.ui.unit.dp
 fun EditPointScreen(
     uiState: EditPointUiState
 ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+            .imePadding()
+            .navigationBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Deleted :(",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Må følge samme skjemaformat som CreatePointScreen. Det er se samme tingene som skal endres",
+            style = MaterialTheme.typography.headlineMedium
+        )
+    }
 }

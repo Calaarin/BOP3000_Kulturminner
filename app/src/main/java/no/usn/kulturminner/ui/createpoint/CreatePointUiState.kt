@@ -10,6 +10,7 @@ data class CreatePointUiState (
     val isSaving: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,         // Brukes som sjekk før man navigerer tilbake etter lagring
+    var sectionsExpanded: Boolean = false,
 
     // Punkt-data (dataene oppdateres både fra server og brukerinput)
     val pointId: String? = null,
@@ -18,7 +19,8 @@ data class CreatePointUiState (
     val lng: Double = 0.0,
     val radius: Int = 50,                   // Standardverdi på 50 meter, men endres av brukerinput eller lasting fra server
     val audioUrl: String = "",
-    val sections: List<SectionUiState> = listOf(SectionUiState())
+    val selectedSectionCount: Int = 1,           // NYTT FELT
+    val sections: List<SectionUiState> = List(1) { SectionUiState() }
 )
 
 // State for hver seksjon i seksjonslista (del av punkt-data)

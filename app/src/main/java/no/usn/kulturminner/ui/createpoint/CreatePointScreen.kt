@@ -29,6 +29,7 @@ fun CreatePointScreen(
     onUpdateSection: (Int, SectionUiState) -> Unit,
     onAddSection: () -> Unit,
     onRemoveSection: (Int) -> Unit,
+    onSectionCountChange: (Int) -> Unit,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -128,12 +129,43 @@ fun CreatePointScreen(
 
                     // Dynamisk antall seksjoner
                     FormLabel("ANTALL SEKSJONER")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(
-                            onClick = onAddSection,
-                            enabled = uiState.sections.size < 5
+
+                    Box {
+                        OutlinedButton(
+                            onClick = { uiState.sectionsExpanded = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, Color.LightGray)
                         ) {
-                            Text("Legg til seksjon")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${uiState.selectedSectionCount} seksjoner",
+                                    color = Color.Black
+                                )
+                                Icon(
+                                    imageVector = Icons.Outlined.ArrowDropDown,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = uiState.sectionsExpanded,
+                            onDismissRequest = { uiState.sectionsExpanded = false }
+                        ) {
+                            (1..5).forEach { number ->
+                                DropdownMenuItem(
+                                    text = { Text("$number seksjoner") },
+                                    onClick = {
+                                        onSectionCountChange(number)      // callback til ViewModel
+                                        uiState.sectionsExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
 

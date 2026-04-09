@@ -80,4 +80,19 @@ class CreatePointViewModel(
     fun removeSection(index: Int) = _uiState.update {
         it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
     }
+
+    // Oppdatert funksjon
+    fun setSectionCount(count: Int) {
+        if (count < 1 || count > 5) return
+
+        _uiState.update { current ->
+            current.copy(
+                selectedSectionCount = count,
+                sections = List(count) { index ->
+                    // Behold eksisterende data hvis vi har flere seksjoner enn før
+                    current.sections.getOrNull(index) ?: SectionUiState()
+                }
+            )
+        }
+    }
 }
