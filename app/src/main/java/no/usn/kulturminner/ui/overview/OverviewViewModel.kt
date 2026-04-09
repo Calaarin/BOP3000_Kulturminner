@@ -19,7 +19,7 @@ class OverviewViewModel(
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState = _uiState.asStateFlow()
 
-    val userId: String =  "u1"
+    val userId: String =  "u1" // id-en til dummybruker
 
     init {
         fetchUserData(userId)
