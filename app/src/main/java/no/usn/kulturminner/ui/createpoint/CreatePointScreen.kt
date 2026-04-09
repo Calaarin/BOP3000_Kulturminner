@@ -24,7 +24,7 @@ fun CreatePointScreen(
     onTitleChange: (String) -> Unit,
     onLatChange: (Double) -> Unit,
     onLngChange: (Double) -> Unit,
-    onRadiusChange: (Int) -> Unit,
+    onRadiusChange: (String) -> Unit,
     onAudioUrlChange: (String) -> Unit,
     onUpdateSection: (Int, SectionUiState) -> Unit,
     onExpandSectionCountDropdown: () -> Unit,
@@ -105,8 +105,8 @@ fun CreatePointScreen(
 
                     FormLabel("RADIUS (meter)")
                     SmallInputField(
-                        value = uiState.radius.toString(),
-                        onValueChange = { onRadiusChange(it.toIntOrNull() ?: 50) },
+                        value = uiState.radius,
+                        onValueChange = onRadiusChange,
                         placeholder = "F.eks 50"
                     )
 

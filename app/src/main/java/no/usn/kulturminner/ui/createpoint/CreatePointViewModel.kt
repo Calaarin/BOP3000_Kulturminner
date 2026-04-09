@@ -19,18 +19,28 @@ class CreatePointViewModel(
     // Hovedfunksjonen for å opprette punkt
     fun createPoint() {
         viewModelScope.launch {
-            _uiState.update { it.copy(
-                isSaving = true,
-                isSuccess = false,          // Boolean-sjekker må tilbakestilles ved start av utføring
-                error = null,
-            ) }
+            // Nullstill tidligere feil/suksess
+            _uiState.update { it.copy(isSaving = true, isSuccess = false, radiusError = null) }
 
+            // === VALIDERING AV RADIUS ===
+            val radiusInt = _uiState.value.radius.toIntOrNull()
+            if (radiusInt == null || radiusInt < 10) {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        radiusError = "Radius må være et tall på minst 10 meter"
+                    )
+                }
+                return@launch
+            }
+            // TODO: implementer visning av radius-error melding til skjerm etter at serverkommunikasjon er på plass
+
+            // TODO: Bør kanskje også gjøres validering på rett format for URL-er
             val point = Point(
-                // id settes automatisk fra server ved opprettelse
                 title = _uiState.value.title,
                 lat = _uiState.value.lat,
                 lng = _uiState.value.lng,
-                radius = _uiState.value.radius,
+                radius = radiusInt,
                 audioUrl = _uiState.value.audioUrl.ifBlank { null },
                 sections = _uiState.value.sections.map { it.toSection() }
             )
@@ -59,7 +69,7 @@ class CreatePointViewModel(
         it.copy(lng = lng)
     }
 
-    fun updateRadius(radius: Int) = _uiState.update {
+    fun updateRadius(radius: String) = _uiState.update {
         it.copy(radius = radius)
     }
 
