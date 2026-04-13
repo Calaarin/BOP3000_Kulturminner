@@ -39,6 +39,7 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 maplibre-android = { module = "org.maplibre.gl:android-sdk", version.ref = "maplibre" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.7.0" }
 
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 

@@ -22,7 +22,8 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
-        fetchSinglePoint("p3") // Bytt til enten "p2" "p3" eller "p4" for å teste layout av andre datasammensetninger
+        fetchSinglePoint("p3") // Bytt til enten "p1", "p2", "p3" eller "p4" for å teste layout i MediaPanel av andre datasammensetninger
+        startLocationUpdates()
     }
 
     // ======================================= EXPLOREMAP =======================================
@@ -50,21 +51,21 @@ class ExploreViewModel(
                     userLat = location.latitude,
                     userLng = location.longitude
                 )}
-                sjekkNærhetTilPunkter(location)
+                checkProximityToPoints(location)
             }
         }
     }
 
-    private fun sjekkNærhetTilPunkter(location: Location) {
+    private fun checkProximityToPoints(location: Location) {
         val points = _uiState.value.points
-        val pointNearby = points.firstOrNull { punkt ->
-            val avstand = FloatArray(1)
+        val pointNearby = points.firstOrNull { point ->
+            val distance = FloatArray(1)
             Location.distanceBetween(
                 location.latitude, location.longitude,
-                punkt.lat, punkt.lng,
-                avstand
+                point.lat, point.lng,
+                distance
             )
-            avstand[0] <= punkt.radius
+            distance[0] <= point.radius
         }
         _uiState.update { it.copy(activePoint = pointNearby) }
     }

@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.maplibre.android)
+    implementation(libs.androidx.appcompat)
 
     // Retrofit + kotlinx-serialization converter
     implementation(libs.retrofit.core)
