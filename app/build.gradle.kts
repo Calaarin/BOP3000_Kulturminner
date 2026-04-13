@@ -60,12 +60,11 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    implementation("androidx.navigation:navigation-compose:2.9.7")
-    implementation("androidx.compose.material3:material3:1.2.0")
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    // MapLibre SDK
-    implementation("org.maplibre.gl:android-sdk:13.0.1")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.maplibre.android)
+
     // Retrofit + kotlinx-serialization converter
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization)
@@ -75,4 +74,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // Desugaring for java.time.Instant på API 24
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.play.services.location)
 }

@@ -4,14 +4,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect // Lagt til for håndtering av navigasjon
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.android.gms.location.FusedLocationProviderClient
 
+import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
 import no.usn.kulturminner.data.repository.UserRepositoryImpl
 import no.usn.kulturminner.data.source.PointSource
@@ -35,18 +39,21 @@ import no.usn.kulturminner.ui.overview.OverviewViewModelFactory
 import no.usn.kulturminner.ui.overview.SortType
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
 
     val navController = rememberNavController()
+    val context = LocalContext.current
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     val isLoginScreen = currentRoute == Destinations.Login.route
 
     // Oppretter repositorier til ViewModelFactories
-    val userRepo = UserRepositoryImpl(UserSource())
-    val pointRepo = PointRepositoryImpl(PointSource())
-    // val routeRepo = RouteRepositoryImpl(RouteSource()) - kommer senere
+    // (Vi kunne brukt dependency-injection-biblioteket "Hilt", men foretrekte å ikke abstrahere instansiering i dette prosjektet)
+    val locationRepo = remember { LocationRepository(fusedLocationClient) }
+    val pointRepo= remember { PointRepositoryImpl(PointSource()) }
+    val userRepo = remember { UserRepositoryImpl(UserSource()) }
+    // val routeRepo = remember { RouteRepositoryImpl(RouteSource()) } - kommer senere
 
     Scaffold(
         topBar = {
@@ -98,7 +105,7 @@ fun AppNavHost() {
             // --- EXPLORE ---
             composable(Destinations.Explore.route) {
                 val viewModel: ExploreViewModel = viewModel(
-                    factory = ExploreViewModelFactory(pointRepo)   // routeRepo skal legges til etter hvert
+                    factory = ExploreViewModelFactory(pointRepo, locationRepo)   // routeRepo skal legges til etter hvert
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
