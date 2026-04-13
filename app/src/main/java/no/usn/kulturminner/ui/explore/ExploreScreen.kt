@@ -78,7 +78,7 @@ fun ExploreScreen(
                     )
                 )
 
-                // 3. Punkt-lag (SymbolLayer) – legges til sist, havner øverst
+                // 3. Punkt-lag (SymbolLayer) – legges til etter ruter, havner over
                 style.addSource(GeoJsonSource("punkter-source", uiState.points.toGeoJson()))
                 style.addLayer(
                     SymbolLayer("punkter-lag", "punkter-source").withProperties(
@@ -89,7 +89,7 @@ fun ExploreScreen(
                     )
                 )
 
-                // Brukerposisjon – sjekk permission først
+                // Brukerposisjon (sjekker permission først)
                 val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
                     context,
                     android.Manifest.permission.ACCESS_FINE_LOCATION
