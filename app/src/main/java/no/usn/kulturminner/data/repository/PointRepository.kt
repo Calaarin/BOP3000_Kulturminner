@@ -77,8 +77,8 @@ class PointRepositoryImpl(
             Point(
                 id = "p2",
                 title = "Bø Prestegård",
-                lat = 59.3987,
-                lng = 9.0654,
+                lat = 59.41694,
+                lng = 9.05833,
                 radius = 40,
                 sections = listOf(
                     Section(
@@ -100,8 +100,8 @@ class PointRepositoryImpl(
             Point(
                 id = "p3",
                 title = "Gullbring Kulturanlegg",
-                lat = 59.4256,
-                lng = 9.0789,
+                lat = 59.41044,
+                lng = 9.06212,
                 radius = 80,
                 sections = listOf(
                     Section(
@@ -113,13 +113,13 @@ class PointRepositoryImpl(
                     Section(
                         heading = "Konsertarena",
                         text = "Anlegget fungerer som en populær konsertarena hvor både lokale og nasjonale artister opptrer. Med gode fasiliteter og moderne lydanlegg tiltrekker stedet seg et bredt publikum gjennom hele året. Arrangementene spenner fra konserter og forestillinger til konferanser og kulturfestivaler.",
-                        imageUrl = null,
+                        imageUrl = "https://example.com/gullbring2.jpg",
                         videoUrl = "https://example.com/gullbring_video.mp4"
                     ),
                     Section(
                         heading = "Fremtidsplaner",
                         text = "Det planlegges flere oppgraderinger av anlegget i årene som kommer, inkludert en ny scene og forbedrede publikumsområder. Målet er å gjøre Gullbring enda mer attraktivt som møteplass for kultur og opplevelser, samtidig som det tilpasses moderne krav og behov.",
-                        imageUrl = "https://example.com/gullbring2.jpg",
+                        imageUrl = null,
                         videoUrl = null
                     )
                 ),
@@ -129,8 +129,8 @@ class PointRepositoryImpl(
             Point(
                 id = "p4",
                 title = "Lifjell Utsiktspunkt",
-                lat = 59.4501,
-                lng = 9.1123,
+                lat = 59.4437,
+                lng = 9.1056,
                 radius = 35,
                 sections = listOf(
                     Section(

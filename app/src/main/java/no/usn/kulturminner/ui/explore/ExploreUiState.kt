@@ -18,6 +18,7 @@ data class ExploreUiState (
     val routes: List<Route> = emptyList(),
     val points: List<Point> = emptyList(),
     val activePoint: Point? = null,
+    val pointNearby: Point? = null,
     val userLat: Double = 0.0,
     val userLng: Double = 0.0
 )

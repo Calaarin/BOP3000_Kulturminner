@@ -113,7 +113,7 @@ fun ExploreScreen(
         // (foreløpig alltid synlig for testing)
         MediaPanel(
             uiState = uiState,
-            point = uiState.activePoint,
+            // point = uiState.activePoint,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.45f) // ca 45% av skjermen

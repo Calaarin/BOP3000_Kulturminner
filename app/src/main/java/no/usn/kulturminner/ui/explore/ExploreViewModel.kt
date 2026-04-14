@@ -81,7 +81,7 @@ class ExploreViewModel(
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(
-                            activePoint = point,
+                            pointNearby = point,
                             isPointLoading = false
                         )
                     }
