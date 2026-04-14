@@ -2,6 +2,7 @@ package no.usn.kulturminner.ui.explore
 
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.model.Route
+import kotlin.Double
 
 data class ExploreUiState (
     // Lastingtilstand
@@ -20,5 +21,9 @@ data class ExploreUiState (
     val activePoint: Point? = null,
     val pointNearby: Point? = null,
     val userLat: Double = 0.0,
-    val userLng: Double = 0.0
+    val userLng: Double = 0.0,
+
+    // Simulering
+    val simulatedLat: Double = 59.4120,  // startposisjon
+    val simulatedLng: Double = 9.0590
 )

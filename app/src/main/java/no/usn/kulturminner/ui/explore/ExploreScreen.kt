@@ -17,18 +17,30 @@ import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.modes.CameraMode
 import org.maplibre.android.location.modes.RenderMode
 import androidx.compose.ui.platform.LocalContext
-import no.usn.kulturminner.ui.components.BaseMap
-import no.usn.kulturminner.ui.utils.toGeoJson
-import no.usn.kulturminner.R
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import org.maplibre.android.maps.MapLibreMap
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import no.usn.kulturminner.ui.components.BaseMap
+import no.usn.kulturminner.ui.utils.toGeoJson
+import no.usn.kulturminner.R
 
 @Composable
 fun ExploreScreen(
     uiState: ExploreUiState
 ) {
     val context = LocalContext.current
+    var mapRef by remember { mutableStateOf<MapLibreMap?>(null) }
     // Posisjonstillatelser fra bruker
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -38,6 +50,7 @@ fun ExploreScreen(
         // når granted er true starter posisjon automatisk via ViewModel
     }
 
+    // Lauchedeffekt til å spørre bruker om tillatelse til henting av enhetens posisjon
     LaunchedEffect(Unit) {
         permissionLauncher.launch(arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -47,13 +60,16 @@ fun ExploreScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
+        // ======================================== KART ========================================
+
         // Kart i bakgrunnen – fyller hele skjermen
         BaseMap(
             modifier = Modifier.fillMaxSize(),
             initialLat = 59.41,
-            initialLng = 9.06,
-            initialZoom = 12.0,
+            initialLng = 9.06212,
+            initialZoom = 15.0,
             onMapReady = { map ->
+                mapRef = map
                 val style = map.style ?: return@BaseMap
 
                 // 1. Last inn ikon-bitmap fra drawable
@@ -106,18 +122,83 @@ fun ExploreScreen(
                     locationComponent.cameraMode = CameraMode.TRACKING
                     locationComponent.renderMode = RenderMode.COMPASS
                 }
+
+                // Last inn simulert bruker-ikon
+                val userDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_user_simulated)!!
+                val userBitmap = Bitmap.createBitmap(
+                    userDrawable.intrinsicWidth,
+                    userDrawable.intrinsicHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+                Canvas(userBitmap).also { canvas ->
+                    userDrawable.setBounds(0, 0, canvas.width, canvas.height)
+                    userDrawable.draw(canvas)
+                }
+                style.addImage("user-ikon", userBitmap)
+
+                // Simulert bruker som GeoJSON-punkt
+                                val userGeoJson = """
+                    {"type":"FeatureCollection","features":[
+                        {"type":"Feature",
+                         "geometry":{"type":"Point",
+                             "coordinates":[${uiState.simulatedLng},${uiState.simulatedLat}]},
+                         "properties":{}}
+                    ]}
+                """.trimIndent()
+
+                style.addSource(GeoJsonSource("user-source", userGeoJson))
+                style.addLayer(
+                    SymbolLayer("user-lag", "user-source").withProperties(
+                        PropertyFactory.iconImage("user-ikon"),
+                        PropertyFactory.iconSize(1.5f),
+                        PropertyFactory.iconAllowOverlap(true)
+                    )
+                )
             }
         )
 
-        // Mediapanel som overlay nederst – kun synlig når bruker er nær punkt
-        // (foreløpig alltid synlig for testing)
-        MediaPanel(
-            uiState = uiState,
-            // point = uiState.activePoint,
+        // Oppdater simulert brukerposisjon når den endres
+        LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
+            val map = mapRef ?: return@LaunchedEffect
+            val style = map.style ?: return@LaunchedEffect
+            val source = style.getSourceAs<GeoJsonSource>("user-source") ?: return@LaunchedEffect
+            val userGeoJson = """
+                {"type":"FeatureCollection","features":[
+                    {"type":"Feature",
+                     "geometry":{"type":"Point",
+                         "coordinates":[${uiState.simulatedLng},${uiState.simulatedLat}]},
+                     "properties":{}}
+                ]}
+            """.trimIndent()
+                    source.setGeoJson(userGeoJson)
+                }
+
+        // ======================================== MEDIAPANEL ========================================
+
+        // Mediapanel – vises kun når bruker er nær et punkt
+        AnimatedVisibility(
+            visible = uiState.activePoint != null,
+            enter = slideInVertically(
+                initialOffsetY = { fullHeight -> fullHeight }, // starter nedenfor skjermen
+                animationSpec = tween(durationMillis = 400, easing = EaseOut)
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight }, // glir ut nedover
+                animationSpec = tween(durationMillis = 300, easing = EaseIn)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.45f) // ca 45% av skjermen
+                .fillMaxHeight(0.45f)
                 .align(Alignment.BottomCenter)
-        )
+        ) {
+            MediaPanel(
+                uiState = uiState,
+                // point = uiState.activePoint, - ikke i bruk nå
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.45f) // ca 45% av skjermen
+                    .align(Alignment.BottomCenter)
+            )
+        }
     }
 }
