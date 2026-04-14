@@ -81,8 +81,24 @@ class ExploreViewModel(
 
         // Rute: start langt unna, gå inn i radius, stå stille, og gå ut igjen
         val waypoints = listOf(
-            // Start – langt unna
+            // Står stille langt unna
             Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+            Pair(59.4120, 9.0590),
+
+            // Starter å bevege seg
             Pair(59.4119, 9.0593),
             Pair(59.4118, 9.0596),
             Pair(59.4117, 9.0598),
