@@ -57,8 +57,6 @@ class CreatePointViewModel(
 
     // ====== Funksjoner for å oppdatere skjema (brukes fra skjermen - blir mye funksjonsreferanser her) =====
 
-    // TODO: kanskje se på løsning for at verdier ikke fjernes fra f.eks tekstfelt i seksjon 2 hvis man endrer til 1 seksjon og tilbake til 2 igjen
-
     fun updateTitle(title: String) = _uiState.update {
         it.copy(title = title)
     }
