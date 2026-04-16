@@ -57,6 +57,10 @@ fun EditPointScreen(
                     text = "Må følge samme skjemaformat som CreatePointScreen",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Text(
+                    text = "Tittel: ${uiState.title}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
 
                 // Bytt ut med det egentlige skjemaet senere
                 // (samme felter som i CreatePointScreen)

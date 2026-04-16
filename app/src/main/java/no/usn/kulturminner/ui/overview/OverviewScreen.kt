@@ -21,7 +21,7 @@ import java.time.ZoneId
 fun OverviewScreen(
     uiState: OverviewUiState,
     onCreatePointClick: () -> Unit,
-    onEditPointClick: () -> Unit,
+    onEditPointClick: (String) -> Unit,
     onDeletePointClick: () -> Unit,
     onSortAlphabetically: () -> Unit,
     onSortByDate: () -> Unit
@@ -214,7 +214,7 @@ fun OverviewScreen(
 
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     IconButton(
-                                        onClick = onEditPointClick,
+                                        onClick = { onEditPointClick(point.id ?: "") },   // sender id-en
                                         modifier = Modifier.size(36.dp)
                                     ) {
                                         Icon(Icons.Default.Edit, contentDescription = null, tint = Color.DarkGray)

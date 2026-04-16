@@ -12,7 +12,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.google.android.gms.location.FusedLocationProviderClient
 
 import no.usn.kulturminner.data.repository.LocationRepository
@@ -124,8 +126,8 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onCreatePointClick = {
                         navController.navigate(Destinations.CreatePoint.route)
                     },
-                    onEditPointClick = {
-                        navController.navigate(Destinations.EditPoint.route)
+                    onEditPointClick = { pointId: String ->
+                        navController.navigate(Destinations.EditPoint.createRoute(pointId))
                     },
                     onDeletePointClick = {}, // Ingenting gjøres enda. TODO: lage en slettingsfunksjon i ViewModel når serverkommunikasjon er på plass
                     onSortAlphabetically = { viewModel.changeSortType(SortType.ALPHABETICAL) },
@@ -157,14 +159,24 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             }
 
             // --- EDIT POINT ---
-            composable(Destinations.EditPoint.route) {
+            composable(
+                route = Destinations.EditPoint.route,
+                arguments = listOf(
+                    navArgument("pointId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val pointId = backStackEntry.arguments?.getString("pointId") ?: ""
+
                 val viewModel: EditPointViewModel = viewModel(
                     factory = EditPointViewModelFactory(pointRepo)
                 )
-                val uiState by viewModel.uiState.collectAsState()
-                EditPointScreen(
-                    uiState = uiState
-                )
+
+                // Last punktet med riktig ID
+                LaunchedEffect(pointId) {
+                    viewModel.loadPoint(pointId)
+                }
+
+                EditPointScreen(uiState = viewModel.uiState.collectAsState().value)
             }
         }
     }
