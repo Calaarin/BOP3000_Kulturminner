@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    // TODO: Endre til riktig base URL for vår server
-    private const val BASE_URL = "https://vår-server-url.com/api/"
+    // TODO: Endre til riktig base URL for HOSTED server senere. Dette er localhost
+    private const val BASE_URL = "http://10.0.2.2:3000/"
 
     // JSON-konfigurasjon tilpasset Kotlin og @Serializable
     private val json = Json {

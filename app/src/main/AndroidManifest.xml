@@ -15,7 +15,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Kulturminner">
+        android:theme="@style/Theme.Kulturminner"
+        android:usesCleartextTraffic="true"> <!-- MÅ BRUKES NÅ MENS DET ER I LOCALHOST. FJERN SENERE -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
