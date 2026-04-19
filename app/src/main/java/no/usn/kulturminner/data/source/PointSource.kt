@@ -23,6 +23,11 @@ class PointSource {
     suspend fun updatePointFull(id: String, pointDto: PointDto): PointDto =
         PointApi.service.updatePointFull(id, pointDto)
 
+    /*
+    suspend fun patchPoint(id: String, fields: PointPatchDto): PointDto =
+    PointApi.service.patchPoint(id, fields)
+     */
+
     suspend fun deletePoint(id: String) {
         PointApi.service.deletePoint(id)
     }

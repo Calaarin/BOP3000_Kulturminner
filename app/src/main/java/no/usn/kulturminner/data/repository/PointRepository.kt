@@ -16,6 +16,8 @@ interface PointRepository {
     suspend fun deletePoint(id: String): Result<Unit>
     suspend fun getDummyPoints(): Result<List<Point>>
     suspend fun getSingleDummyPoint(id: String): Result<Point>
+
+    // suspend fun patchPoint(id: String, fields: PointPatchDto): Result<Point>
 }
 
 class PointRepositoryImpl(
@@ -47,6 +49,11 @@ class PointRepositoryImpl(
     override suspend fun deletePoint(id: String): Result<Unit> = runCatching {
         remoteSource.deletePoint(id)
     }
+
+    /*
+    override suspend fun patchPoint(id: String, fields: PointPatchDto): Result<Point> = runCatching {
+    remoteSource.patchPoint(id, fields).toModel()}
+     */
 
     override suspend fun getSingleDummyPoint(id: String): Result<Point> = runCatching {
         val points = getDummyPoints().getOrThrow()
