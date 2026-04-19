@@ -12,8 +12,8 @@ class UserSource {
     suspend fun updateUser(id: String, userDto: UserDto): UserDto =
         UserApi.service.updateUser(id, userDto)
 
-    suspend fun updateUserFull(id: String, userDto: UserDto): UserDto =
-        UserApi.service.updateUserFull(id, userDto)
+    suspend fun updateUserPatch(id: String, userDto: UserDto): UserDto =
+        UserApi.service.updateUserPatch(id, userDto)
 
     suspend fun updatePassword(id: String, newPassword: String) =
         UserApi.service.updatePassword(id, PasswordUpdateDto(newPassword))

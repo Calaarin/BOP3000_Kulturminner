@@ -19,7 +19,10 @@ class OverviewViewModel(
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState = _uiState.asStateFlow()
 
-    val userId: String =  "u1" // id-en til dummybruker
+    val dummyId: String = "u1" // id-en til dummybruker
+    val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
+    val userId: String =  perId
+
 
     init {
         fetchUserData(userId)
@@ -30,7 +33,7 @@ class OverviewViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isUserLoading = true, userError = null) }
 
-            userRepository.getDummyUser(userId)         // Bruk getUser(userId) når serverkommunikasjon er klar
+            userRepository.getUser(userId)         // Bruk getUser(userId) for server, getDummyUser(userId) for lokalt
                 .onSuccess { user ->
                     _uiState.update { it.copy(user = user, isUserLoading = false) }
                 }

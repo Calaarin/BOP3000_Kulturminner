@@ -1,5 +1,6 @@
 package no.usn.kulturminner.data.api
 
+import kotlinx.serialization.Contextual
 import no.usn.kulturminner.data.network.RetrofitInstance
 import retrofit2.http.*
 
@@ -36,6 +37,17 @@ interface PointApiService {
     ): PointDto
 
     // Oppdater punkt - PATCH er anbefalt (delvis oppdatering)
+
+    /* Ny versjon
+    @PATCH("point/update/{id}")
+    suspend fun updatePoint(
+        @Path("id") id: String,
+        @Body fields: Map<String, @Contextual Any> // lar oss sende bare akkurat de feltene vi vil oppdatere
+    ): PointDto
+
+     */
+
+    // Gammel versjon som antagelig må byttes ut
     @PATCH("points/{id}")
     suspend fun updatePoint(
         @Path("id") id: String,
