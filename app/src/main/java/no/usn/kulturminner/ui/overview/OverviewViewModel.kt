@@ -47,7 +47,7 @@ class OverviewViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getDummyPoints()           // Bruk getMyPoints(userId) for server, getDummyPoints() for lokalt
+            pointRepository.getMyPoints(userId)           // Bruk getMyPoints(userId) for server, getDummyPoints() for lokalt
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }

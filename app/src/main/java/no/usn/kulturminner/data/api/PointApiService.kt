@@ -9,7 +9,7 @@ interface PointApiService {
     // === Henting === TODO: endepunkter må matches med server
 
     // Hent ALLE punkter (til kart - vi får se om mer optimalisert datafetching bør gjøres etter hvert)
-    @GET("point")
+    @GET("point/get")
     suspend fun getAllPoints(): List<PointDto>
 
     // Hent alle punkter for innlogget bruker (nåværende løsning med dummy-id)
@@ -23,7 +23,7 @@ interface PointApiService {
     // suspend fun getMyPoints(): List<PointDto>
 
     // Hent ett enkelt punkt
-    @GET("point/{id}")
+    @GET("point/get/{id}")
     suspend fun getPoint(
         @Path("id") id: String
     ): PointDto
@@ -31,7 +31,7 @@ interface PointApiService {
     // === Oppretting / oppdatering / sletting ===
 
     // Opprett nytt punkt
-    @POST("point")
+    @POST("point/create")
     suspend fun createPoint(
         @Body point: PointDto
     ): PointDto
@@ -56,21 +56,21 @@ interface PointApiService {
      */
 
     // Gammel versjon som antagelig må byttes ut
-    @PATCH("point/{id}")
+    @PATCH("point/update/{id}")
     suspend fun updatePoint(
         @Path("id") id: String,
         @Body point: PointDto
     ): PointDto
 
     // Alternativ full oppdatering (PUT) - vi beholder denne til foreløpig bruk
-    @PUT("point/{id}")
+    @PUT("point/update/{id}")
     suspend fun updatePointFull(
         @Path("id") id: String,
         @Body point: PointDto
     ): PointDto
 
     // Slett punkt
-    @DELETE("point/{id}")
+    @DELETE("point/delete/{id}")
     suspend fun deletePoint(
         @Path("id") id: String)
 }

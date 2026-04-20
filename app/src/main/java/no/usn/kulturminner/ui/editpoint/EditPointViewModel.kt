@@ -24,7 +24,7 @@ class EditPointViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            pointRepository.getSingleDummyPoint(id)           // Bruk getPoint(id) for serverdata og getSingleDummyPoint(id) for lokale data
+            pointRepository.getPoint(id)           // Bruk getPoint(id) for serverdata og getSingleDummyPoint(id) for lokale data
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(
