@@ -16,6 +16,10 @@ class CreatePointViewModel(
     private val _uiState = MutableStateFlow(CreatePointUiState())
     val uiState = _uiState.asStateFlow()
 
+    // Midlertidig hardkodet brukerID basert på det som ligger i daabasen
+    val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
+    val userId: String =  perId
+
     // Hovedfunksjonen for å opprette punkt
     fun createPoint() {
         viewModelScope.launch {
@@ -37,6 +41,7 @@ class CreatePointViewModel(
 
             // TODO: Bør kanskje også gjøres validering på rett format for URL-er
             val point = Point(
+                userId = userId,
                 title = _uiState.value.title,
                 lat = _uiState.value.lat,
                 lng = _uiState.value.lng,

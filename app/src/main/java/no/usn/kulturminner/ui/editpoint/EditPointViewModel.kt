@@ -16,6 +16,10 @@ class EditPointViewModel(
     private val _uiState = MutableStateFlow(EditPointUiState())
     val uiState = _uiState.asStateFlow()
 
+    // Midlertidig hardkodet brukerID basert på det som ligger i daabasen
+    val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
+    val userId: String =  perId
+
     fun loadPoint(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -63,6 +67,7 @@ class EditPointViewModel(
 
             val pointToUpdate = Point(
                 id = _uiState.value.pointId,
+                userId = userId, // midlertidig
                 title = _uiState.value.title,
                 lat = _uiState.value.lat,
                 lng = _uiState.value.lng,

@@ -13,9 +13,9 @@ interface PointApiService {
     suspend fun getAllPoints(): List<PointDto>
 
     // Hent alle punkter for innlogget bruker (nåværende løsning med dummy-id)
-    @GET("point/search/{userId}")
+    @GET("point/search")
     suspend fun getMyPoints(
-        @Path("userId") userId: String
+        @Query("user_id") userId: String
     ): List<PointDto>
 
     // Fremtidig versjon når auth er på plass (dette er bedre praksis med bruk av auth token)

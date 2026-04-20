@@ -66,6 +66,7 @@ class PointRepositoryImpl(
         listOf(
             Point(
                 id = "p1",
+                userId = "u1",
                 title = "Kulturstien",
                 lat = 59.4123,
                 lng = 9.0521,
@@ -83,6 +84,7 @@ class PointRepositoryImpl(
             ),
             Point(
                 id = "p2",
+                userId = "u1",
                 title = "Bø Prestegård",
                 lat = 59.41694,
                 lng = 9.05833,
@@ -106,6 +108,7 @@ class PointRepositoryImpl(
             ),
             Point(
                 id = "p3",
+                userId = "u1",
                 title = "Gullbring Kulturanlegg",
                 lat = 59.41044,
                 lng = 9.06212,
@@ -135,6 +138,7 @@ class PointRepositoryImpl(
             ),
             Point(
                 id = "p4",
+                userId = "u1",
                 title = "Lifjell Utsiktspunkt",
                 lat = 59.4437,
                 lng = 9.1056,
@@ -174,8 +178,6 @@ class PointRepositoryImpl(
 
 // ==================== Mapper ====================
 
-// (Disse må oppdateres etter behov for hva som skal sendes før de er brukbare)
-
 private fun PointDto.toModel(): Point {
     return Point(
         id = id,
@@ -185,16 +187,16 @@ private fun PointDto.toModel(): Point {
         radius = radius,
         audioUrl = audioUrl,
         sections = sections.map { it.toModel() },
-
-        // Konverterer String til Instant (null-safe)
-        createdAt = createdAt?.let { Instant.parse(it) },
-        updatedAt = updatedAt?.let { Instant.parse(it) }
+        // Datoer må konverteres
+        createdAt = createdAt?.toInstant(),
+        updatedAt = updatedAt?.toInstant()
     )
 }
 
 private fun Point.toDto(): PointDto {
     return PointDto(
         id = id,
+        userId = userId,
         title = title,
         lat = lat,
         lng = lng,
@@ -202,7 +204,7 @@ private fun Point.toDto(): PointDto {
         audioUrl = audioUrl,
         sections = sections.map { it.toDto() },
 
-        // Konverterer Instant til String (såkalt ISO-8601 format)
+        // Konverterer Instant til String
         createdAt = createdAt?.toString(),
         updatedAt = updatedAt?.toString()
     )
@@ -224,6 +226,8 @@ private fun Section.toDto() = SectionDto(
     videoUrl = videoUrl
 )
 
-
-
-//
+// Konverterer String til Instant (og over til såkalt ISO-8601 format som bør brukes i Instant-klassen)
+private fun String.toInstant(): Instant =
+    this.replace(" ", "T")
+        .let { if (it.endsWith("Z")) it else "${it}Z" }
+        .let { Instant.parse(it) }
