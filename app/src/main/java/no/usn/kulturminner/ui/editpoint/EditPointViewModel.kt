@@ -16,15 +16,15 @@ class EditPointViewModel(
     private val _uiState = MutableStateFlow(EditPointUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Midlertidig hardkodet brukerID basert på det som ligger i daabasen
+    // Midlertidig hardkodet brukerID basert på det som ligger i databasen
     val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
-    val userId: String =  perId
+    val userId: String =  perId // Utbyttbar midlertidig id til spørring mot databasen
 
     fun loadPoint(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            pointRepository.getSingleDummyPoint(id)            // Bytt til getPoint(id) senere når vi skal hente data fra server
+            pointRepository.getSingleDummyPoint(id)           // Bruk getPoint(id) for serverdata og getSingleDummyPoint(id) for lokale data
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(
@@ -35,6 +35,7 @@ class EditPointViewModel(
                             radius = point.radius.toString(),
                             audioUrl = point.audioUrl ?: "",
                             sections = point.sections.map { it.toUiState() },
+                            selectedSectionCount = point.sections.size,
                             isLoading = false
                         )
                     }
@@ -115,14 +116,27 @@ class EditPointViewModel(
         it.copy(sections = it.sections.toMutableList().apply { set(index, section) })
     }
 
-    // ===== Oppdatering av antall seksjoner =====
+    // ======= Håndtering av antall seksjon-skjema i skjermen =======
 
-
-    fun addSection() = _uiState.update {
-        it.copy(sections = it.sections + SectionUiState())
+    fun expandSectionCountDropdown() {
+        _uiState.update { it.copy(isSectionCountDropdownExpanded = true) }
     }
 
-    fun removeSection(index: Int) = _uiState.update {
-        it.copy(sections = it.sections.toMutableList().apply { removeAt(index) })
+    fun dismissSectionCountDropdown() {
+        _uiState.update { it.copy(isSectionCountDropdownExpanded = false) }
+    }
+
+    // Funksjon for dynamisk endring av antall seksjoner basert på dropdownliste med alternativ
+    fun setSectionCount(count: Int) {
+        if (count < 1 || count > 5) return
+        _uiState.update { current ->
+            current.copy(
+                selectedSectionCount = count,
+                isSectionCountDropdownExpanded = false,   // lukker dropdown automatisk
+                sections = List(count) { index ->
+                    current.sections.getOrNull(index) ?: SectionUiState()
+                }
+            )
+        }
     }
 }

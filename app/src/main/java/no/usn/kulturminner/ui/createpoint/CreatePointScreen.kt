@@ -132,7 +132,7 @@ fun CreatePointScreen(
 
                     Box {
                         OutlinedButton(
-                            onClick = onExpandSectionCountDropdown,           // callback til ViewModel
+                            onClick = onExpandSectionCountDropdown,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
                             border = BorderStroke(1.dp, Color.LightGray)
@@ -142,10 +142,13 @@ fun CreatePointScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "${uiState.selectedSectionCount} seksjoner",
-                                    color = Color.Black
-                                )
+                                val text = if (uiState.selectedSectionCount == 1) {
+                                    "1 seksjon"
+                                } else {
+                                    "${uiState.selectedSectionCount} seksjoner"
+                                }
+
+                                Text(text = text, color = Color.Black)
                                 Icon(
                                     imageVector = Icons.Outlined.ArrowDropDown,
                                     contentDescription = null
@@ -155,14 +158,14 @@ fun CreatePointScreen(
 
                         DropdownMenu(
                             expanded = uiState.isSectionCountDropdownExpanded,
-                            onDismissRequest = onDismissSectionCountDropdown   // callback til ViewModel
+                            onDismissRequest = onDismissSectionCountDropdown
                         ) {
                             (1..5).forEach { number ->
+                                val itemText = if (number == 1) "1 seksjon" else "$number seksjoner"
+
                                 DropdownMenuItem(
-                                    text = { Text("$number seksjoner") },
-                                    onClick = {
-                                        onSectionCountChange(number)           // callback til ViewModel
-                                    }
+                                    text = { Text(itemText) },
+                                    onClick = { onSectionCountChange(number) }
                                 )
                             }
                         }
@@ -303,10 +306,10 @@ private fun LargeInputField(
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .height(96.dp),
+            .height(154.dp),
         placeholder = { Text(placeholder) },
         shape = RoundedCornerShape(8.dp),
-        maxLines = 4
+        maxLines = 5
     )
 }
 

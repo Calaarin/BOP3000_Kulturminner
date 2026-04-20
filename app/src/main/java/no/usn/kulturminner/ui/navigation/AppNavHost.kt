@@ -171,12 +171,29 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     factory = EditPointViewModelFactory(pointRepo)
                 )
 
-                // Last punktet med riktig ID
+                // Last punktet når vi navigerer hit
                 LaunchedEffect(pointId) {
-                    viewModel.loadPoint(pointId)
+                    if (pointId.isNotBlank()) {
+                        viewModel.loadPoint(pointId)
+                    }
                 }
 
-                EditPointScreen(uiState = viewModel.uiState.collectAsState().value)
+                val uiState by viewModel.uiState.collectAsState()
+
+                EditPointScreen(
+                    uiState = uiState,
+                    onTitleChange = viewModel::updateTitle,
+                    onLatChange = viewModel::updateLat,
+                    onLngChange = viewModel::updateLng,
+                    onRadiusChange = viewModel::updateRadius,
+                    onAudioUrlChange = viewModel::updateAudioUrl,
+                    onUpdateSection = viewModel::updateSection,
+                    onExpandSectionCountDropdown = viewModel::expandSectionCountDropdown,
+                    onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
+                    onSectionCountChange = viewModel::setSectionCount,
+                    onSaveClick = viewModel::updatePoint,
+                    onCancelClick = { navController.popBackStack() }
+                )
             }
         }
     }

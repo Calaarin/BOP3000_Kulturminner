@@ -33,7 +33,7 @@ class OverviewViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isUserLoading = true, userError = null) }
 
-            userRepository.getUser(userId)         // Bruk getUser(userId) for server, getDummyUser(userId) for lokalt
+            userRepository.getUser(userId)         // Bruk getUser(userId) for serverdata, getDummyUser(userId) for lokalt
                 .onSuccess { user ->
                     _uiState.update { it.copy(user = user, isUserLoading = false) }
                 }
@@ -47,7 +47,7 @@ class OverviewViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getMyPoints(userId)           // Bruk getMyPoints(userId) for server, getDummyPoints() for lokalt
+            pointRepository.getDummyPoints()           // Bruk getMyPoints(userId) for server, getDummyPoints() for lokalt
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }
