@@ -11,7 +11,7 @@ data class PointDto(
     val lng: Double,
     val radius: Int,
     @SerialName("audio_url") val audioUrl: String? = null,
-    val sections: List<SectionDto> = emptyList(),
+    @SerialName("Section") val sections: List<SectionDto> = emptyList(),
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null,
     @SerialName("user_id") val userId: String? = null

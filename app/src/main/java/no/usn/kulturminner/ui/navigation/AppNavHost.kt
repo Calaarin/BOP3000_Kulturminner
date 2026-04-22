@@ -19,6 +19,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
+import no.usn.kulturminner.data.repository.SectionRepository
+import no.usn.kulturminner.data.repository.SectionRepositoryImpl
 import no.usn.kulturminner.data.repository.UserRepositoryImpl
 import no.usn.kulturminner.data.source.PointSource
 import no.usn.kulturminner.data.source.UserSource
@@ -53,7 +55,11 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
     // Oppretter repositorier til ViewModelFactories
     // (Vi kunne brukt dependency-injection-biblioteket "Hilt", men foretrekte å ikke abstrahere instansiering i dette prosjektet)
     val locationRepo = remember { LocationRepository(fusedLocationClient) }
-    val pointRepo= remember { PointRepositoryImpl(PointSource()) }
+    val sectionRepo = remember { SectionRepositoryImpl() }
+    val pointRepo= remember { PointRepositoryImpl(
+        PointSource(),
+        sectionRepository = sectionRepo
+    ) }
     val userRepo = remember { UserRepositoryImpl(UserSource()) }
     // val routeRepo = remember { RouteRepositoryImpl(RouteSource()) } - kommer senere
 

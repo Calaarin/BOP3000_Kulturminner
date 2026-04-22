@@ -21,7 +21,8 @@ interface PointRepository {
 }
 
 class PointRepositoryImpl(
-    private val remoteSource: PointSource
+    private val remoteSource: PointSource,
+    private val sectionRepository: SectionRepository
 ) : PointRepository {
 
     override suspend fun getAllPoints(): Result<List<Point>> = runCatching {
@@ -37,13 +38,34 @@ class PointRepositoryImpl(
     }
 
     override suspend fun createPoint(point: Point): Result<Point> = runCatching {
-        val dto = point.toDto()
-        remoteSource.createPoint(dto).toModel()
+        // 1. Opprett punktet
+        val createdPoint = remoteSource.createPoint(point.toDto()).toModel()
+        val pointId = createdPoint.id ?: error("Punkt fikk ingen id fra server")
+
+        // 2. Opprett alle seksjoner med punktets id
+        point.sections.forEach { section ->
+            sectionRepository.createSection(pointId, section).getOrThrow()
+        }
+
+        createdPoint
     }
 
     override suspend fun updatePoint(point: Point): Result<Point> = runCatching {
-        val dto = point.toDto()
-        remoteSource.updatePoint(point.id ?: "", dto).toModel()
+        val pointId = point.id ?: error("Punkt mangler id")
+
+        // 1. Oppdater punkt-data
+        val updatedPoint = remoteSource.updatePoint(pointId, point.toDto()).toModel()
+
+        // 2. Slett alle eksisterende seksjoner og opprett på nytt
+        // Enkleste strategi: slett-og-opprett (alternativ: diff og patch enkeltvis)
+        updatedPoint.sections.forEach { existing ->
+            existing.id?.let { sectionRepository.deleteSection(it) }
+        }
+        point.sections.forEach { section ->
+            sectionRepository.createSection(pointId, section).getOrThrow()
+        }
+
+        updatedPoint
     }
 
     override suspend fun deletePoint(id: String): Result<Unit> = runCatching {

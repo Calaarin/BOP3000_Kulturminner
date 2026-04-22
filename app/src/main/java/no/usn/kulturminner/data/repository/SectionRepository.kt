@@ -1,0 +1,52 @@
+package no.usn.kulturminner.data.repository
+
+import no.usn.kulturminner.data.api.SectionApi
+import no.usn.kulturminner.data.api.SectionDto
+import no.usn.kulturminner.data.model.Section
+
+interface SectionRepository {
+    suspend fun createSection(pointId: String, section: Section): Result<Unit>
+    suspend fun deleteSection(id: String): Result<Unit>
+    suspend fun updateSection(id: String, section: Section): Result<Unit>
+}
+
+class SectionRepositoryImpl : SectionRepository {
+
+    override suspend fun createSection(pointId: String, section: Section): Result<Unit> = runCatching {
+        SectionApi.service.createSection(
+            SectionDto(
+                pointId = pointId,
+                heading = section.heading,
+                text = section.text,
+                imageUrl = section.imageUrl,
+                videoUrl = section.videoUrl
+            )
+        )
+    }
+
+    override suspend fun deleteSection(id: String): Result<Unit> = runCatching {
+        SectionApi.service.deleteSection(id)
+    }
+
+    override suspend fun updateSection(id: String, section: Section): Result<Unit> = runCatching {
+        SectionApi.service.updateSection(id, section.toDto())
+    }
+}
+
+// ==================== Mapper ====================
+
+private fun SectionDto.toModel() = Section(
+    id = id,
+    heading = heading,
+    text = text,
+    imageUrl = imageUrl,
+    videoUrl = videoUrl
+)
+
+private fun Section.toDto() = SectionDto(
+    id = id,
+    heading = heading,
+    text = text,
+    imageUrl = imageUrl,
+    videoUrl = videoUrl
+)
