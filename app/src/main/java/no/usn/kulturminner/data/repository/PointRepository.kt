@@ -193,6 +193,24 @@ class PointRepositoryImpl(
                 ),
                 createdAt = Instant.parse("2026-01-05T12:00:00Z"),
                 updatedAt = Instant.parse("2026-04-05T09:10:00Z")
+            ),
+            Point(
+                id = "p5",
+                userId = "u1",
+                title = "Holmenkollen",
+                lat = 59.9619,
+                lng = 10.6674,
+                radius = 200,
+                audioUrl = "https://example.com/audio1.mp3",
+                sections = listOf(
+                    Section(
+                        heading = "Velkommen",
+                        text = "Holmenkollen har arrangert ski-VM flere ganger.",
+                        imageUrl = "https://example.com/img1.jpg"
+                    )
+                ),
+                createdAt = Instant.parse("2026-03-15T10:00:00Z"),
+                updatedAt = Instant.parse("2026-04-02T14:30:00Z")
             )
         )
     }

@@ -65,9 +65,9 @@ fun ExploreScreen(
         // Kart i bakgrunnen – fyller hele skjermen
         BaseMap(
             modifier = Modifier.fillMaxSize(),
-            initialLat = 59.41,
-            initialLng = 9.06212,
-            initialZoom = 15.0,
+            initialLat = 59.91,   // Oslo
+            initialLng = 10.75,
+            initialZoom = 10.0,
             onMapReady = { map ->
                 mapRef = map
                 val style = map.style ?: return@BaseMap
@@ -157,7 +157,15 @@ fun ExploreScreen(
             }
         )
 
-        // Oppdater simulert brukerposisjon når den endres
+        // Bruker LaunchedEffect til å legge til (oppdatere) punkter i kartet når de er hentet fra database
+        LaunchedEffect(uiState.points) {
+            val map = mapRef ?: return@LaunchedEffect
+            val style = map.style ?: return@LaunchedEffect
+            val source = style.getSourceAs<GeoJsonSource>("punkter-source") ?: return@LaunchedEffect
+            source.setGeoJson(uiState.points.toGeoJson())
+        }
+
+        // Oppdaterer simulert brukerposisjon når den endres
         LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
             val map = mapRef ?: return@LaunchedEffect
             val style = map.style ?: return@LaunchedEffect
@@ -171,7 +179,7 @@ fun ExploreScreen(
                 ]}
             """.trimIndent()
                     source.setGeoJson(userGeoJson)
-                }
+        }
 
         // ======================================== MEDIAPANEL ========================================
 

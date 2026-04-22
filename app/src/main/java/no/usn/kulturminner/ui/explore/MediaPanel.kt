@@ -25,7 +25,7 @@ fun MediaPanel(
     modifier: Modifier = Modifier
 ) {
     when {
-        uiState.isPointListLoading -> {
+        uiState.isPointLoading -> {
             Box(
                 modifier = modifier.fillMaxWidth().height(320.dp),
                 contentAlignment = Alignment.Center

@@ -35,7 +35,7 @@ class ExploreViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getDummyPoints()           // Bruk getAllPoints() til serverdata og getDummyPoints() til lokale dummydata
+            pointRepository.getAllPoints()           // Bruk getAllPoints() til serverdata og getDummyPoints() til lokale dummydata
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }
