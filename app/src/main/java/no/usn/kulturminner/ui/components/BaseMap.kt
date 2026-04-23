@@ -50,8 +50,8 @@ private fun kartverketStyle(): String = """
 fun BaseMap(
     modifier: Modifier = Modifier,
     initialLat: Double = 59.41,
-    initialLng: Double = 9.061,
-    initialZoom: Double = 12.0,
+    initialLng: Double = 9.0588,
+    initialZoom: Double = 15.0,
     onMapReady: (MapLibreMap) -> Unit = {}   // kart-objektet sendes ut (MapLibreMap import i bruk her)
 ) {
     val context = LocalContext.current

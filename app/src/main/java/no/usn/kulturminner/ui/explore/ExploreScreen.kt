@@ -66,8 +66,8 @@ fun ExploreScreen(
         BaseMap(
             modifier = Modifier.fillMaxSize(),
             initialLat = 59.41,
-            initialLng = 9.061,
-            initialZoom = 15.5,
+            initialLng = 9.0588,
+            initialZoom = 15.0,
             onMapReady = { map ->
                 mapRef = map
                 val style = map.style ?: return@BaseMap
