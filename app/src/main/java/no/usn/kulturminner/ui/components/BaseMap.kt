@@ -50,7 +50,7 @@ private fun kartverketStyle(): String = """
 fun BaseMap(
     modifier: Modifier = Modifier,
     initialLat: Double = 59.41,
-    initialLng: Double = 9.06,
+    initialLng: Double = 9.061,
     initialZoom: Double = 12.0,
     onMapReady: (MapLibreMap) -> Unit = {}   // kart-objektet sendes ut (MapLibreMap import i bruk her)
 ) {

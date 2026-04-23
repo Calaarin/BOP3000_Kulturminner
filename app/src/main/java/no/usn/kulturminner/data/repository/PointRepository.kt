@@ -89,24 +89,6 @@ class PointRepositoryImpl(
             Point(
                 id = "p1",
                 userId = "u1",
-                title = "Kulturstien",
-                lat = 59.4123,
-                lng = 9.0521,
-                radius = 60,
-                audioUrl = "https://example.com/audio1.mp3",
-                sections = listOf(
-                    Section(
-                        heading = "Velkommen",
-                        text = "Dette er starten på kulturstien som tar deg gjennom et område rikt på historie og natur. Her kan du oppleve både gamle kulturminner og vakre landskap langs en lett tilgjengelig sti. Underveis vil du finne informasjon om stedene du passerer, og du kan stoppe opp for å lære mer om områdets betydning gjennom tidene.",
-                        imageUrl = "https://example.com/img1.jpg"
-                    )
-                ),
-                createdAt = Instant.parse("2026-03-15T10:00:00Z"),
-                updatedAt = Instant.parse("2026-04-02T14:30:00Z")
-            ),
-            Point(
-                id = "p2",
-                userId = "u1",
                 title = "Bø Prestegård",
                 lat = 59.41694,
                 lng = 9.05833,
@@ -129,7 +111,7 @@ class PointRepositoryImpl(
                 updatedAt = Instant.parse("2026-04-01T11:20:00Z")
             ),
             Point(
-                id = "p3",
+                id = "p2",
                 userId = "u1",
                 title = "Gullbring Kulturanlegg",
                 lat = 59.41044,
@@ -159,7 +141,7 @@ class PointRepositoryImpl(
                 updatedAt = Instant.parse("2026-03-28T16:45:00Z")
             ),
             Point(
-                id = "p4",
+                id = "p3",
                 userId = "u1",
                 title = "Lifjell Utsiktspunkt",
                 lat = 59.4437,
@@ -195,22 +177,52 @@ class PointRepositoryImpl(
                 updatedAt = Instant.parse("2026-04-05T09:10:00Z")
             ),
             Point(
-                id = "p5",
-                userId = "u1",
-                title = "Holmenkollen",
-                lat = 59.9619,
-                lng = 10.6674,
-                radius = 200,
-                audioUrl = "https://example.com/audio1.mp3",
+                id = "p4",
+                title = "Universitetet i Sørøst-Norge – Campus Bø",
+                lat = 59.4088,
+                lng = 9.05955,
+                radius = 70,
+                audioUrl = "https://example.com/usn_audio.mp3",
                 sections = listOf(
                     Section(
-                        heading = "Velkommen",
-                        text = "Holmenkollen har arrangert ski-VM flere ganger.",
-                        imageUrl = "https://example.com/img1.jpg"
+                        heading = "Campus og studentliv",
+                        text = "Universitetet i Sørøst-Norge i Bø er kjent for sitt levende studentmiljø og sin naturnære beliggenhet. Campus ligger sentralt i bygda og fungerer som et samlingspunkt for både studenter og ansatte. Her finner man moderne undervisningslokaler, bibliotek, kantine og ulike møteplasser som brukes til både faglige og sosiale aktiviteter gjennom hele året.",
+                        imageUrl = "https://example.com/usn1.jpg",
+                        videoUrl = null
+                    ),
+                    Section(
+                        heading = "Studier og omgivelser",
+                        text = "Studietilbudet i Bø spenner fra friluftsliv og idrett til økonomi og IT, og campus er spesielt kjent for sin sterke profil innen natur- og miljøfag. Området rundt campus gir unike muligheter for turer, trening og rekreasjon, med kort vei til både Lifjell og Bøelva. Dette gjør studiestedet attraktivt for studenter som ønsker en aktiv hverdag i naturskjønne omgivelser.",
+                        imageUrl = null,
+                        videoUrl = "https://example.com/usn_video.mp4"
                     )
                 ),
-                createdAt = Instant.parse("2026-03-15T10:00:00Z"),
-                updatedAt = Instant.parse("2026-04-02T14:30:00Z")
+                createdAt = Instant.parse("2026-03-20T10:00:00Z"),
+                updatedAt = Instant.parse("2026-04-10T12:00:00Z")
+            ),
+            Point(
+                id = "p5",
+                title = "Bø kyrkje",
+                lat = 59.41122,
+                lng = 9.05500,
+                radius = 50,
+                audioUrl = "https://example.com/bo_kirke_audio.mp3",
+                sections = listOf(
+                    Section(
+                        heading = "Historie",
+                        text = "Bø kyrkje er en trekirke fra 1875, oppført i nygotisk stil og tegnet av arkitekten Jacob Wilhelm Nordan. Den ble bygget for å erstatte den eldre middelalderkirken som ligger like ved, og har siden vært hovedkirken i Bø. Kirken har plass til rundt 450 personer og fungerer fortsatt som et viktig samlingspunkt for lokalsamfunnet ved gudstjenester, seremonier og kulturelle arrangementer.",
+                        imageUrl = "https://example.com/bo_kirke1.jpg",
+                        videoUrl = null
+                    ),
+                    Section(
+                        heading = "Området rundt kirken",
+                        text = "Kirken ligger sentralt i Bø, omgitt av kirkegård og grønne områder som gir stedet en rolig og høytidelig atmosfære. Like i nærheten finner man også Bø gamle kyrkje, som gir området en tydelig historisk dybde. Beliggenheten gjør kirken lett tilgjengelig både for besøkende og studenter, og den fungerer som et naturlig stoppunkt på turer gjennom sentrum.",
+                        imageUrl = null,
+                        videoUrl = "https://example.com/bo_kirke_video.mp4"
+                    )
+                ),
+                createdAt = Instant.parse("2026-03-10T09:00:00Z"),
+                updatedAt = Instant.parse("2026-04-08T15:30:00Z")
             )
         )
     }
