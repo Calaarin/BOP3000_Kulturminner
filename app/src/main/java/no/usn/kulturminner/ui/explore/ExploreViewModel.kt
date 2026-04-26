@@ -23,7 +23,7 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
-        fetchSinglePoint("p3") // Bytt til enten "p1", "p2", "p3" eller "p4" for å teste layout i MediaPanel av andre datasammensetninger
+        fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
         startLocationUpdates()
         startSimulatedMovement()
     }
@@ -194,7 +194,7 @@ class ExploreViewModel(
                 val distance = FloatArray(1)
                 Location.distanceBetween(lat, lng, 59.41044, 9.06212, distance)
                 val nearbyPoint = if (distance[0] <= 80) {
-                    _uiState.value.points.find { it.id == "p3" }
+                    _uiState.value.points.find { it.id == "p2" }
                 } else null
 
                 _uiState.update { it.copy(activePoint = nearbyPoint) }
