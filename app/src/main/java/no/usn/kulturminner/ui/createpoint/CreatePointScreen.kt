@@ -17,7 +17,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.platform.LocalContext
+import org.maplibre.android.style.layers.SymbolLayer
+import org.maplibre.android.style.layers.Property
+import org.maplibre.android.style.layers.PropertyFactory
+import org.maplibre.android.style.sources.GeoJsonSource
+import no.usn.kulturminner.R
+import no.usn.kulturminner.ui.components.BaseMap
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun CreatePointScreen(
     uiState: CreatePointUiState,
@@ -34,220 +55,286 @@ fun CreatePointScreen(
     onCancelClick: () -> Unit
 ) {
     val backgroundColor = Color(0xFFF4F1F8)
+    val buttonBackgroundColor = Color(0xFFD3D1E9)
     val panelColor = Color(0xFFE7E7E7)
     val sectionHeaderColor = Color(0xFFD8D0F6)
-    val uploadBorderColor = Color(0xFF8E7AE6)
+    val uploadBorderColor = Color(0xFF4F46A3)      // mørkere lilla (fra 0xFF8E7AE6)
+    val uploadBackgroundColor = Color(0xFFDEDDE6)  // lys grå-lilla bakgrunn
+
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val isKeyboardVisible = WindowInsets.isImeVisible
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
     ) {
+        // Kart til plassering av punkt so første item
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+        ) {
+            BaseMap(
+                modifier = Modifier.fillMaxSize(),
+                initialLat = 59.41,
+                initialLng = 9.06,
+                initialZoom = 12.0,
+                onMapReady = { map ->
+                    val style = map.style ?: return@BaseMap
+
+                    // Ikon for valgt punkt
+                    val drawable = AppCompatResources.getDrawable(context, R.drawable.ic_location_on)!!
+                    val bitmap = Bitmap.createBitmap(
+                        drawable.intrinsicWidth,
+                        drawable.intrinsicHeight,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    Canvas(bitmap).also {
+                        drawable.setBounds(0, 0, it.width, it.height)
+                        drawable.draw(it)
+                    }
+                    style.addImage("valgt-punkt-ikon", bitmap)
+
+                    // Tom kilde til å begynne med
+                    style.addSource(GeoJsonSource("valgt-punkt-source",
+                        """{"type":"FeatureCollection","features":[]}"""))
+                    style.addLayer(
+                        SymbolLayer("valgt-punkt-lag", "valgt-punkt-source").withProperties(
+                            PropertyFactory.iconImage("valgt-punkt-ikon"),
+                            PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
+                            PropertyFactory.iconAllowOverlap(true)
+                        )
+                    )
+
+                    // Klikk setter markør og oppdaterer UiState
+                    map.addOnMapClickListener { latLng ->
+                        onLatChange(latLng.latitude)
+                        onLngChange(latLng.longitude)
+
+                        // Oppdater markør-posisjonen
+                        val source = style.getSourceAs<GeoJsonSource>("valgt-punkt-source")
+                        source?.setGeoJson("""
+                        {"type":"FeatureCollection","features":[
+                            {"type":"Feature",
+                             "geometry":{"type":"Point",
+                                 "coordinates":[${latLng.longitude},${latLng.latitude}]},
+                             "properties":{}}
+                        ]}
+                    """.trimIndent())
+                        true
+                    }
+                }
+            )
+
+            // Overlay-tekst når ingen koordinat er valgt ennå
+            if (uiState.lat == 0.0 && uiState.lng == 0.0) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 150.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFF6F63D9)
+                ) {
+                    Text(
+                        text = "Trykk i kartet for å sette punkt",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        color = Color.White
+                    )
+                }
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(top = 220.dp)  // visuell høyde av kartdelen
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, bottom = 140.dp),
-            verticalArrangement = Arrangement.Top
+                .padding(bottom = 120.dp)  // plass til bunnpanel
         ) {
-            // Kart-plassholder (senere erstattes med ekte kart)
-            Surface(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp),
-                color = Color(0xFFE6E6E6)
+                    .background(panelColor)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Surface(
-                            shape = RoundedCornerShape(24.dp),
-                            color = Color(0xFF7AA8F8)
+                FormLabel("TITTEL")
+                SmallInputField(
+                    value = uiState.title,
+                    onValueChange = onTitleChange,
+                    placeholder = "Navn på opplevelsespunkt"
+                )
+
+                FormLabel("RADIUS (meter)")
+                SmallInputField(
+                    value = uiState.radius,
+                    onValueChange = onRadiusChange,
+                    placeholder = "F.eks 50"
+                )
+
+                FormLabel("LYDFIL")
+                SmallInputField(
+                    value = uiState.audioUrl,
+                    onValueChange = onAudioUrlChange,
+                    placeholder = "Lim inn URL eller last opp fil"
+                )
+
+                UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
+
+                Text(
+                    text = "Støttende formater: mp3, wav",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Dynamisk antall seksjoner
+                FormLabel("ANTALL SEKSJONER")
+
+                Box {
+                    OutlinedButton(
+                        onClick = onExpandSectionCountDropdown,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(1.dp, Color.LightGray),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val text = if (uiState.selectedSectionCount == 1) {
+                                "1 seksjon"
+                            } else {
+                                "${uiState.selectedSectionCount} seksjoner"
+                            }
+
+                            Text(text = text, color = Color.Black)
                             Icon(
-                                imageVector = Icons.Outlined.LocationOn,
-                                contentDescription = null,
-                                modifier = Modifier.padding(10.dp).size(28.dp),
-                                tint = Color.White
+                                imageVector = Icons.Outlined.ArrowDropDown,
+                                contentDescription = null
                             )
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Button(
-                            onClick = { /* TODO: Åpne kart for å sette punkt */ },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6F63D9))
-                        ) {
-                            Text("Trykk for å sette punkt")
+                    }
+
+                    DropdownMenu(
+                        expanded = uiState.isSectionCountDropdownExpanded,
+                        onDismissRequest = onDismissSectionCountDropdown
+                    ) {
+                        (1..5).forEach { number ->
+                            val itemText = if (number == 1) "1 seksjon" else "$number seksjoner"
+
+                            DropdownMenuItem(
+                                text = { Text(itemText) },
+                                onClick = { onSectionCountChange(number) }
+                            )
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(14.dp))
+                // Dynamiske seksjoner
+                uiState.sections.forEachIndexed { index, section ->
+                    SectionHeader("Seksjon ${index + 1}")
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = panelColor)
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    FormLabel("TITTEL")
+                    FormLabel("OVERSKRIFT")
                     SmallInputField(
-                        value = uiState.title,
-                        onValueChange = onTitleChange,
-                        placeholder = "Navn på opplevelsespunkt"
+                        value = section.heading,
+                        onValueChange = { onUpdateSection(index, section.copy(heading = it)) },
+                        placeholder = "Tittel for seksjon"
                     )
 
-                    FormLabel("RADIUS (meter)")
-                    SmallInputField(
-                        value = uiState.radius,
-                        onValueChange = onRadiusChange,
-                        placeholder = "F.eks 50"
+                    FormLabel("TEKSTAVSNITT")
+                    LargeInputField(
+                        value = section.text,
+                        onValueChange = { onUpdateSection(index, section.copy(text = it)) },
+                        placeholder = "Skriv inn innholdstekst..."
                     )
 
-                    FormLabel("LYDFIL")
+                    FormLabel("BILDE")
                     SmallInputField(
-                        value = uiState.audioUrl,
-                        onValueChange = onAudioUrlChange,
+                        value = section.imageUrl,
+                        onValueChange = { onUpdateSection(index, section.copy(imageUrl = it)) },
                         placeholder = "Lim inn URL eller last opp fil"
                     )
-
                     UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
                     Text(
-                        text = "Støttende formater: mp3, wav",
+                        text = "Støttende formater: jpg, jpeg, png",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Dynamisk antall seksjoner
-                    FormLabel("ANTALL SEKSJONER")
+                    FormLabel("VIDEO")
+                    SmallInputField(
+                        value = section.videoUrl,
+                        onValueChange = { onUpdateSection(index, section.copy(videoUrl = it)) },
+                        placeholder = "Lim inn URL eller last opp fil"
+                    )
+                    UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
-                    Box {
-                        OutlinedButton(
-                            onClick = onExpandSectionCountDropdown,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, Color.LightGray)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val text = if (uiState.selectedSectionCount == 1) {
-                                    "1 seksjon"
-                                } else {
-                                    "${uiState.selectedSectionCount} seksjoner"
-                                }
-
-                                Text(text = text, color = Color.Black)
-                                Icon(
-                                    imageVector = Icons.Outlined.ArrowDropDown,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-
-                        DropdownMenu(
-                            expanded = uiState.isSectionCountDropdownExpanded,
-                            onDismissRequest = onDismissSectionCountDropdown
-                        ) {
-                            (1..5).forEach { number ->
-                                val itemText = if (number == 1) "1 seksjon" else "$number seksjoner"
-
-                                DropdownMenuItem(
-                                    text = { Text(itemText) },
-                                    onClick = { onSectionCountChange(number) }
-                                )
-                            }
-                        }
-                    }
-
-                    // Dynamiske seksjoner
-                    uiState.sections.forEachIndexed { index, section ->
-                        SectionHeader("Seksjon ${index + 1}", sectionHeaderColor)
-
-                        FormLabel("OVERSKRIFT")
-                        SmallInputField(
-                            value = section.heading,
-                            onValueChange = { onUpdateSection(index, section.copy(heading = it)) },
-                            placeholder = "Tittel for seksjon"
-                        )
-
-                        FormLabel("TEKSTAVSNITT")
-                        LargeInputField(
-                            value = section.text,
-                            onValueChange = { onUpdateSection(index, section.copy(text = it)) },
-                            placeholder = "Skriv inn innholdstekst..."
-                        )
-
-                        FormLabel("BILDE")
-                        SmallInputField(
-                            value = section.imageUrl,
-                            onValueChange = { onUpdateSection(index, section.copy(imageUrl = it)) },
-                            placeholder = "Lim inn URL eller last opp fil"
-                        )
-                        UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
-
-                        FormLabel("VIDEO")
-                        SmallInputField(
-                            value = section.videoUrl,
-                            onValueChange = { onUpdateSection(index, section.copy(videoUrl = it)) },
-                            placeholder = "Lim inn URL eller last opp fil"
-                        )
-                        UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
-                    }
+                    Text(
+                        text = "Støttende formater: mp4",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
                 }
+                Spacer(modifier = Modifier.height(38.dp))
             }
         }
 
-        // Bunnpanel med knapper
-        Surface(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .imePadding(),
-            tonalElevation = 6.dp,
-            shadowElevation = 8.dp,
-            color = backgroundColor
+        // Bunnpanel med knapper - animeres ut når tastatur er oppe
+        AnimatedVisibility(
+            visible = !isKeyboardVisible,
+            enter = slideInVertically { it },
+            exit = slideOutVertically { it },
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(12.dp))
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .imePadding(),
+                tonalElevation = 6.dp,
+                shadowElevation = 8.dp,
+                color = backgroundColor
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                Button(
-                    onClick = onSaveClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
-                    enabled = !uiState.isSaving
-                ) {
-                    if (uiState.isSaving) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
-                    } else {
-                        Text("Lagre punkt")
+                    Button(
+                        onClick = onSaveClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
+                        enabled = !uiState.isSaving
+                    ) {
+                        if (uiState.isSaving) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                        } else {
+                            Text("Lagre punkt")
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedButton(
-                    onClick = onCancelClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFE25C5C)),
-                    border = BorderStroke(1.dp, Color(0xFFF1C5C5))
-                ) {
-                    Text("Avbryt")
+                    OutlinedButton(
+                        onClick = onCancelClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFE25C5C)),
+                        border = BorderStroke(1.dp, Color(0xFFF1C5C5))
+                    ) {
+                        Text("Avbryt")
+                    }
                 }
             }
         }
@@ -264,17 +351,19 @@ private fun FormLabel(text: String) {
 }
 
 @Composable
-private fun SectionHeader(text: String, backgroundColor: Color) {
+private fun SectionHeader(text: String) {
+    Spacer(modifier = Modifier.height(8.dp))
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(4.dp),
-        color = backgroundColor
+        color = Color(0xFFD3D1E9)
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = Color(0xFF6F63D9)
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelMedium,
+            color = Color(0xFF8379DF)
         )
     }
 }
@@ -289,9 +378,25 @@ private fun SmallInputField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text(placeholder) },
+        placeholder = {
+            Text(
+                placeholder,
+                color = Color(0xFF9E9E9E) // Vi setter grå placeholder tekst
+            )
+        },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),  // svart input-tekst
         singleLine = true,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
+            // Ingen border:
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Color.Transparent,
+            // Lys grå border (bytt ut Transparent med denne for å prøve):
+            // unfocusedBorderColor = Color(0xFFE0E0E0),
+            // focusedBorderColor = Color(0xFFBDBDBD)
+        )
     )
 }
 
@@ -307,22 +412,42 @@ private fun LargeInputField(
         modifier = Modifier
             .fillMaxWidth()
             .height(154.dp),
-        placeholder = { Text(placeholder) },
+        placeholder = {
+            Text(
+                placeholder,
+                color = Color(0xFF9E9E9E)
+            )
+        },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        maxLines = 5,
         shape = RoundedCornerShape(8.dp),
-        maxLines = 5
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
+            // Ingen border:
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Color.Transparent,
+            // Lys grå border (bytt ut Transparent med denne for å prøve):
+            // unfocusedBorderColor = Color(0xFFE0E0E0),
+            // focusedBorderColor = Color(0xFFBDBDBD)
+        )
     )
 }
 
 @Composable
 private fun UploadButton(
     text: String,
-    borderColor: Color
+    borderColor: Color,
+    backgroundColor: Color = Color(0xFFDEDDE6)
 ) {
     OutlinedButton(
         onClick = { },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, borderColor),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = backgroundColor
+        ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 12.dp,
             vertical = 0.dp
@@ -331,7 +456,7 @@ private fun UploadButton(
         Icon(
             imageVector = Icons.Outlined.FileUpload,
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(24.dp),
             tint = borderColor
         )
 
