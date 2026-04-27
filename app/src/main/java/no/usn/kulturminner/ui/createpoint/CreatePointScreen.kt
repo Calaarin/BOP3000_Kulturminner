@@ -36,6 +36,7 @@ import no.usn.kulturminner.ui.components.FormLabel
 import no.usn.kulturminner.ui.components.SectionHeader
 import no.usn.kulturminner.ui.components.SmallInputField
 import no.usn.kulturminner.ui.components.LargeInputField
+import no.usn.kulturminner.ui.components.SavingDialog
 import no.usn.kulturminner.ui.components.UploadButton
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
@@ -70,6 +71,11 @@ fun CreatePointScreen(
             .fillMaxSize()
             .background(backgroundColor)
     ) {
+        // Popup med melding ved lagring av punkt
+        if (uiState.isSaving) {
+            SavingDialog(message = "Oppretter punkt...")
+        }
+
         // Kart til plassering av punkt so første item
         Box(
             modifier = Modifier
@@ -317,11 +323,7 @@ fun CreatePointScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
                         enabled = !uiState.isSaving
                     ) {
-                        if (uiState.isSaving) {
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
-                        } else {
-                            Text("Lagre punkt")
-                        }
+                        Text("Lagre punkt")
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
