@@ -17,6 +17,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        resConfigs("nb", "nn", "no") // bedre støtte for norske tegn
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
