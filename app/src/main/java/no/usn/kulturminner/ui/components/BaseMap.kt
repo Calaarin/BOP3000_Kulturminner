@@ -32,6 +32,8 @@ private fun kartverketStyle(): String = """
       "type": "raster",
       "tiles": ["$KARTVERKET_TOPO_URL"],
       "tileSize": 256,
+      "minzoom": 0,
+      "maxzoom": 18,
       "attribution": "© Kartverket"
     }
   },
@@ -39,7 +41,9 @@ private fun kartverketStyle(): String = """
     {
       "id": "kartverket-topo-layer",
       "type": "raster",
-      "source": "kartverket-topo"
+      "source": "kartverket-topo",
+      "minzoom": 0,
+      "maxzoom": 22
     }
   ]
 }

@@ -3,14 +3,11 @@ package no.usn.kulturminner.ui.createpoint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material.icons.outlined.FileUpload
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,18 +22,21 @@ import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.layers.Property
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.sources.GeoJsonSource
-import no.usn.kulturminner.R
-import no.usn.kulturminner.ui.components.BaseMap
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.FontWeight
+
+import no.usn.kulturminner.R
+import no.usn.kulturminner.ui.components.BaseMap
+import no.usn.kulturminner.ui.components.FormLabel
+import no.usn.kulturminner.ui.components.SectionHeader
+import no.usn.kulturminner.ui.components.SmallInputField
+import no.usn.kulturminner.ui.components.LargeInputField
+import no.usn.kulturminner.ui.components.UploadButton
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -58,7 +58,7 @@ fun CreatePointScreen(
     val buttonBackgroundColor = Color(0xFFD3D1E9)
     val panelColor = Color(0xFFE7E7E7)
     val sectionHeaderColor = Color(0xFFD8D0F6)
-    val uploadBorderColor = Color(0xFF4F46A3)      // mørkere lilla (fra 0xFF8E7AE6)
+    val uploadBorderColor = Color(0xFF4F46A3)      // mørkere lilla
     val uploadBackgroundColor = Color(0xFFDEDDE6)  // lys grå-lilla bakgrunn
 
     val context = LocalContext.current
@@ -183,7 +183,7 @@ fun CreatePointScreen(
                 UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
                 Text(
-                    text = "Støttende formater: mp3, wav",
+                    text = "Støttede formater: mp3, wav",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -264,7 +264,7 @@ fun CreatePointScreen(
                     UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
                     Text(
-                        text = "Støttende formater: jpg, jpeg, png",
+                        text = "Støttede formater: jpg, jpeg, png",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -280,7 +280,7 @@ fun CreatePointScreen(
                     UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
 
                     Text(
-                        text = "Støttende formater: mp4",
+                        text = "Støttede formater: mp4",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -338,133 +338,5 @@ fun CreatePointScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun FormLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelSmall,
-        color = Color(0xFF5C5C5C)
-    )
-}
-
-@Composable
-private fun SectionHeader(text: String) {
-    Spacer(modifier = Modifier.height(8.dp))
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(4.dp),
-        color = Color(0xFFD3D1E9)
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFF8379DF)
-        )
-    }
-}
-
-@Composable
-private fun SmallInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        placeholder = {
-            Text(
-                placeholder,
-                color = Color(0xFF9E9E9E) // Vi setter grå placeholder tekst
-            )
-        },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),  // svart input-tekst
-        singleLine = true,
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = Color.White,
-            focusedContainerColor = Color.White,
-            // Ingen border:
-            unfocusedBorderColor = Color.Transparent,
-            focusedBorderColor = Color.Transparent,
-            // Lys grå border (bytt ut Transparent med denne for å prøve):
-            // unfocusedBorderColor = Color(0xFFE0E0E0),
-            // focusedBorderColor = Color(0xFFBDBDBD)
-        )
-    )
-}
-
-@Composable
-private fun LargeInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(154.dp),
-        placeholder = {
-            Text(
-                placeholder,
-                color = Color(0xFF9E9E9E)
-            )
-        },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),
-        maxLines = 5,
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = Color.White,
-            focusedContainerColor = Color.White,
-            // Ingen border:
-            unfocusedBorderColor = Color.Transparent,
-            focusedBorderColor = Color.Transparent,
-            // Lys grå border (bytt ut Transparent med denne for å prøve):
-            // unfocusedBorderColor = Color(0xFFE0E0E0),
-            // focusedBorderColor = Color(0xFFBDBDBD)
-        )
-    )
-}
-
-@Composable
-private fun UploadButton(
-    text: String,
-    borderColor: Color,
-    backgroundColor: Color = Color(0xFFDEDDE6)
-) {
-    OutlinedButton(
-        onClick = { },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, borderColor),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = backgroundColor
-        ),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 12.dp,
-            vertical = 0.dp
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.FileUpload,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-            tint = borderColor
-        )
-
-        Spacer(modifier = Modifier.width(6.dp))
-
-        Text(
-            text = text,
-            color = borderColor
-        )
     }
 }
