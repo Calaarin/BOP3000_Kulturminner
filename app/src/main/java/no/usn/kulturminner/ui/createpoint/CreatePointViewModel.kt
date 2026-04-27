@@ -32,7 +32,7 @@ class CreatePointViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        popupMessage = "Radius må være et tall på minst 5 meter"    // Vi kan diskutere hva som burde være minimum
+                        popupMessage = "Radius må være et heltall på minst 5 meter"    // Vi kan diskutere hva som burde være minimum
                     )
                 }
                 return@launch

@@ -139,7 +139,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onEditPointClick = { pointId: String ->
                         navController.navigate(Destinations.EditPoint.createRoute(pointId))
                     },
-                    onDeletePointClick = {}, // Ingenting gjøres enda. TODO: lage en slettingsfunksjon i ViewModel når serverkommunikasjon er på plass
+                    onDeletePointClick = { pointId -> viewModel.deletePoint(pointId) },
                     onSortAlphabetically = { viewModel.changeSortType(SortType.ALPHABETICAL) },
                     onSortByDate = { viewModel.changeSortType(SortType.DATE) }
                 )

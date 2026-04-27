@@ -22,7 +22,7 @@ fun OverviewScreen(
     uiState: OverviewUiState,
     onCreatePointClick: () -> Unit,
     onEditPointClick: (String) -> Unit,
-    onDeletePointClick: () -> Unit,
+    onDeletePointClick: (String) -> Unit,
     onSortAlphabetically: () -> Unit,
     onSortByDate: () -> Unit
 ) {
@@ -221,7 +221,7 @@ fun OverviewScreen(
                                     }
 
                                     IconButton(
-                                        onClick = onDeletePointClick,
+                                        onClick = { onDeletePointClick(point.id ?: "") },
                                         modifier = Modifier.size(36.dp)
                                     ) {
                                         Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF5A5A))

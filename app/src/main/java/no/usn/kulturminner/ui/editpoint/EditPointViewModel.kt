@@ -60,7 +60,7 @@ class EditPointViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        error = "Radius må være et tall på minst 5 meter"   // Vi kan diskutere hva som burde være minimum
+                        error = "Radius må være et heltall på minst 5 meter"   // Vi kan diskutere hva som burde være minimum
                     )
                 }
                 return@launch

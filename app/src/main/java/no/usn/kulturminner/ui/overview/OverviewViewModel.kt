@@ -57,6 +57,21 @@ class OverviewViewModel(
         }
     }
 
+    fun deletePoint(id: String) {
+        viewModelScope.launch {
+            pointRepository.deletePoint(id)
+                .onSuccess {
+                    // Oppdater lista lokalt uten ny nettverksforespørsel
+                    _uiState.update { state ->
+                        state.copy(points = state.points.filter { it.id != id })
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(pointError = e.message) }
+                }
+        }
+    }
+
     fun changeSortType(newSortType: SortType) {
         _uiState.update { current ->
             val sortedPoints = when (newSortType) {
