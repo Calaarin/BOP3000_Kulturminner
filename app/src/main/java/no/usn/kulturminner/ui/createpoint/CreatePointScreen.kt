@@ -36,6 +36,7 @@ import no.usn.kulturminner.ui.components.FormLabel
 import no.usn.kulturminner.ui.components.SectionHeader
 import no.usn.kulturminner.ui.components.SmallInputField
 import no.usn.kulturminner.ui.components.LargeInputField
+import no.usn.kulturminner.ui.components.MessageDialog
 import no.usn.kulturminner.ui.components.SavingDialog
 import no.usn.kulturminner.ui.components.UploadButton
 
@@ -53,7 +54,8 @@ fun CreatePointScreen(
     onDismissSectionCountDropdown: () -> Unit,
     onSectionCountChange: (Int) -> Unit,
     onSaveClick: () -> Unit,
-    onCancelClick: () -> Unit
+    onCancelClick: () -> Unit,
+    onDismissPopup: () -> Unit
 ) {
     val backgroundColor = Color(0xFFF4F1F8)
     val buttonBackgroundColor = Color(0xFFD3D1E9)
@@ -74,6 +76,14 @@ fun CreatePointScreen(
         // Popup med melding ved lagring av punkt
         if (uiState.isSaving) {
             SavingDialog(message = "Oppretter punkt...")
+        }
+
+        // Feilmelding for feil format i radius tekstfelt
+        uiState.popupMessage?.let { message ->
+            MessageDialog(
+                message = message,
+                onDismiss = onDismissPopup   // nullstilling av popupMessage
+            )
         }
 
         // Kart til plassering av punkt so første item

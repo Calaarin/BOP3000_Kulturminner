@@ -23,8 +23,12 @@ class CreatePointViewModel(
     // Hovedfunksjonen for å opprette punkt
     fun createPoint() {
         viewModelScope.launch {
-            // Nullstill tidligere feil/suksess
-            _uiState.update { it.copy(isSaving = true, isSuccess = false, popupMessage = null) }
+            // Nullstilling av feil/suksess/statuser
+            _uiState.update { it.copy(
+                isSaving = true,
+                isSuccess = false,
+                popupMessage = null
+            ) }
 
             // === VALIDERING AV RADIUS ===
             val radiusInt = _uiState.value.radius.toIntOrNull()
@@ -108,5 +112,10 @@ class CreatePointViewModel(
                 }
             )
         }
+    }
+
+    // Nullstilling av popupMessage
+    fun dismissPopup() {
+        _uiState.update { it.copy(popupMessage = null) }
     }
 }

@@ -173,7 +173,8 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
                     onSectionCountChange = viewModel::setSectionCount,
                     onSaveClick = viewModel::createPoint,
-                    onCancelClick = { navController.popBackStack() }
+                    onCancelClick = { navController.popBackStack() },
+                    onDismissPopup = viewModel::dismissPopup
                 )
             }
 
@@ -218,7 +219,8 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
                     onSectionCountChange = viewModel::setSectionCount,
                     onSaveClick = viewModel::updatePoint,
-                    onCancelClick = { navController.popBackStack() }
+                    onCancelClick = { navController.popBackStack() },
+                    onDismissPopup = viewModel::dismissPopup
                 )
             }
         }

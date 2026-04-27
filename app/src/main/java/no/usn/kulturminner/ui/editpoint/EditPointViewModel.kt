@@ -49,9 +49,10 @@ class EditPointViewModel(
     fun updatePoint() {
         viewModelScope.launch {
             _uiState.update { it.copy(
+                // Nullstilling av feil/suksess/statuser
                 isSaving = true,
-                isSuccess = false,          // Boolean-sjekker og error må tilbakestilles ved start av utføring
-                error = null,
+                isSuccess = false,
+                popupMessage = null,
             ) }
 
             // === VALIDERING AV RADIUS ===
@@ -60,7 +61,7 @@ class EditPointViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        error = "Radius må være et heltall på minst 5 meter"   // Vi kan diskutere hva som burde være minimum
+                        popupMessage = "Radius må være et heltall på minst 5 meter"   // Vi kan diskutere hva som burde være minimum
                     )
                 }
                 return@launch
@@ -138,5 +139,10 @@ class EditPointViewModel(
                 }
             )
         }
+    }
+
+    // Nullstilling av popupMessage
+    fun dismissPopup() {
+        _uiState.update { it.copy(popupMessage = null) }
     }
 }
