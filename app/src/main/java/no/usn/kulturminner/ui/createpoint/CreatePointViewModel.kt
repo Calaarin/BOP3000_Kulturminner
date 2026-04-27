@@ -16,7 +16,7 @@ class CreatePointViewModel(
     private val _uiState = MutableStateFlow(CreatePointUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Midlertidig hardkodet brukerID basert på det som ligger i daabasen
+    // Midlertidig hardkodet brukerID basert på det som ligger i databasen
     val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
     val userId: String =  perId
 

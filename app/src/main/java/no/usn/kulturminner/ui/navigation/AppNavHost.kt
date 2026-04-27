@@ -127,6 +127,10 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
+                LaunchedEffect(Unit) {
+                    viewModel.fetchMyPoints()
+                }
+
                 OverviewScreen(
                     uiState = uiState,
                     onCreatePointClick = {
@@ -147,6 +151,13 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     factory = CreatePointViewModelFactory(pointRepo)
                 )
                 val uiState by viewModel.uiState.collectAsState()
+
+                // Naviger tilbake når punkt er lagret
+                LaunchedEffect(uiState.isSuccess) {
+                    if (uiState.isSuccess) {
+                        navController.popBackStack()
+                    }
+                }
 
                 CreatePointScreen(
                     uiState = uiState,
@@ -185,6 +196,13 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                 }
 
                 val uiState by viewModel.uiState.collectAsState()
+
+                // Naviger tilbake når punkt er lagret
+                LaunchedEffect(uiState.isSuccess) {
+                    if (uiState.isSuccess) {
+                        navController.popBackStack()
+                    }
+                }
 
                 EditPointScreen(
                     uiState = uiState,

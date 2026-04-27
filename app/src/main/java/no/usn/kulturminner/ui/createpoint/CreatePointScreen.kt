@@ -148,7 +148,7 @@ fun CreatePointScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 220.dp)  // visuell høyde av kartdelen
+                .padding(top = 220.dp)  // setter bare statisk visuell høyde av kartdelen for nå
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 120.dp)  // plass til bunnpanel
         ) {
