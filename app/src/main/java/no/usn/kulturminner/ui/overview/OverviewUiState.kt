@@ -13,8 +13,9 @@ data class OverviewUiState(
     val user: User? = null,
     val points: List<Point> = emptyList(),
 
-    val sortType: SortType = SortType.DATE,
+    val pointToDeleteId: String? = null,
 
+    val sortType: SortType = SortType.DATE,
     val isSortedAlphabetically: Boolean = false
 )
 

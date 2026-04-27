@@ -57,11 +57,17 @@ class OverviewViewModel(
         }
     }
 
-    fun deletePoint(id: String) {
+    fun requestDeletePoint(id: String) {
+        _uiState.update { it.copy(pointToDeleteId = id) }
+    }
+
+    fun confirmDeletePoint() {
+        val id = _uiState.value.pointToDeleteId ?: return
+        _uiState.update { it.copy(pointToDeleteId = null) }
         viewModelScope.launch {
             pointRepository.deletePoint(id)
                 .onSuccess {
-                    // Oppdater lista lokalt uten ny nettverksforespørsel
+                    // Oppdaterer lista lokalt uten ny nettverksforespørsel
                     _uiState.update { state ->
                         state.copy(points = state.points.filter { it.id != id })
                     }
@@ -70,6 +76,10 @@ class OverviewViewModel(
                     _uiState.update { it.copy(pointError = e.message) }
                 }
         }
+    }
+
+    fun cancelDelete() {
+        _uiState.update { it.copy(pointToDeleteId = null) }
     }
 
     fun changeSortType(newSortType: SortType) {

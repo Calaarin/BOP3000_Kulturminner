@@ -23,6 +23,8 @@ fun OverviewScreen(
     onCreatePointClick: () -> Unit,
     onEditPointClick: (String) -> Unit,
     onDeletePointClick: (String) -> Unit,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit,
     onSortAlphabetically: () -> Unit,
     onSortByDate: () -> Unit
 ) {
@@ -230,6 +232,25 @@ fun OverviewScreen(
                             }
                         }
                     }
+                }
+
+                // Bekreftelsesdialog
+                if (uiState.pointToDeleteId != null) {
+                    AlertDialog(
+                        onDismissRequest = onCancelDelete,
+                        title = { Text("Slett punkt") },
+                        text = { Text("Er du sikker på at du vil slette dette punktet? Dette kan ikke angres.") },
+                        confirmButton = {
+                            TextButton(onClick = onConfirmDelete) {
+                                Text("Slett", color = Color(0xFFE25C5C))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = onCancelDelete) {
+                                Text("Avbryt")
+                            }
+                        }
+                    )
                 }
 
                 // Floating Action Button
