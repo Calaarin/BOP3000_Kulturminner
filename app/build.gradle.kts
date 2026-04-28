@@ -77,4 +77,6 @@ dependencies {
     // Desugaring for java.time.Instant på API 24
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.play.services.location)
+    // Til AsyncImage
+    implementation(libs.coil.compose)
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import no.usn.kulturminner.R
 import no.usn.kulturminner.data.model.Section
 
@@ -110,24 +111,18 @@ private fun SectionContent(section: Section, index: Int) {
             Spacer(modifier = Modifier.height(42.dp))
         }
 
-        // Bilde – bruker lokalt drawable basert på seksjonsindeks
+        // Bilde fra URL med AsyncImage
         if (!section.imageUrl.isNullOrBlank()) {
-            val drawableId = when (index % 5) {
-                0 -> R.drawable.gullbring_1
-                1 -> R.drawable.gullbring_2
-                2 -> R.drawable.gullbring_3
-                3 -> R.drawable.gullbring_4
-                else -> R.drawable.gullbring_5
-            }
-
-            Image(
-                painter = painterResource(id = drawableId),
-                contentDescription = section.heading ?: "Bilde fra Gullbring",
+            AsyncImage(
+                model = section.imageUrl,
+                contentDescription = section.heading ?: "Bilde av opplevelsespunkt",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
                     .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = null,           // kan legge inn en placeholder drawable senere
+                error = null                  // kan legge inn error-bilde senere
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
