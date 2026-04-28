@@ -130,105 +130,83 @@ fun OverviewScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFE7E7E7)
-                            )
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE7E7E7))
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Header-rad
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "Opplevelsespunkter",
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-
+                                    Text("Opplevelsespunkter", style = MaterialTheme.typography.headlineSmall)
                                     Box(
                                         modifier = Modifier
                                             .background(Color(0xFF9ED8F7), RoundedCornerShape(12.dp))
                                             .padding(horizontal = 10.dp, vertical = 4.dp)
                                     ) {
-                                        Text(
-                                            text = uiState.points.size.toString(),
-                                            style = MaterialTheme.typography.labelLarge
-                                        )
+                                        Text(uiState.points.size.toString(), style = MaterialTheme.typography.labelLarge)
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(14.dp))
-
+                                // Sorteringsknapper
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Button(
                                         onClick = onSortAlphabetically,
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1E9B))
-                                    ) {
-                                        Text("Sorter alfabetisk")
-                                    }
+                                    ) { Text("Sorter alfabetisk") }
 
                                     Button(
                                         onClick = onSortByDate,
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1E9B))
-                                    ) {
-                                        Text("Sorter etter dato")
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // === LISTE MED PUNKTER ===
-                    items(uiState.points.size) { index ->
-                        val point = uiState.points[index]
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7))
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = point.title,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    val date = point.updatedAt?.let {
-                                        DateTimeFormatter.ofPattern("dd. MMM yyyy")
-                                            .withZone(java.time.ZoneId.systemDefault())
-                                            .format(it)
-                                    } ?: ""
-                                    Text(
-                                        text = "Endret $date",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.Gray
-                                    )
+                                    ) { Text("Sorter etter dato") }
                                 }
 
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    IconButton(
-                                        onClick = { onEditPointClick(point.id ?: "") },   // sender id-en
-                                        modifier = Modifier.size(36.dp)
+                                // Punktliste inne i kortet
+                                uiState.points.forEach { point ->
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7))
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = null, tint = Color.DarkGray)
-                                    }
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(point.title, style = MaterialTheme.typography.titleMedium)
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                val date = point.updatedAt?.let {
+                                                    DateTimeFormatter.ofPattern("dd. MMM yyyy")
+                                                        .withZone(ZoneId.systemDefault())
+                                                        .format(it)
+                                                } ?: ""
+                                                Text("Endret $date", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                            }
 
-                                    IconButton(
-                                        onClick = { onDeletePointClick(point.id ?: "") },
-                                        modifier = Modifier.size(36.dp)
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF5A5A))
+                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                IconButton(
+                                                    onClick = { onEditPointClick(point.id ?: "") },
+                                                    modifier = Modifier.size(36.dp)
+                                                ) {
+                                                    Icon(Icons.Default.Edit, contentDescription = null, tint = Color.DarkGray)
+                                                }
+                                                IconButton(
+                                                    onClick = { onDeletePointClick(point.id ?: "") },
+                                                    modifier = Modifier.size(36.dp)
+                                                ) {
+                                                    Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF5A5A))
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
