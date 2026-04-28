@@ -55,7 +55,7 @@ interface PointApiService {
     ): PointDto
      */
 
-    // Gammel versjon som antagelig må byttes ut
+    // Gammel versjon som antagelig må byttes ut - ER I BRUK NÅ
     @PATCH("point/update/{id}")
     suspend fun updatePoint(
         @Path("id") id: String,

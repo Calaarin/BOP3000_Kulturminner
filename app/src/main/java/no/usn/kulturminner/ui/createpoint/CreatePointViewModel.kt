@@ -30,7 +30,7 @@ class CreatePointViewModel(
                 popupMessage = null
             ) }
 
-            // === VALIDERING AV RADIUS ===
+            // Validering av radius
             val radiusInt = _uiState.value.radius.toIntOrNull()
             if (radiusInt == null || radiusInt < 5) {
                 _uiState.update {
@@ -41,9 +41,27 @@ class CreatePointViewModel(
                 }
                 return@launch
             }
-            // TODO: implementer visning av radius-error melding til skjerm etter at serverkommunikasjon er på plass
+            // Validering av innhold i seksjoner
+            val tomSeksjon = _uiState.value.sections.indexOfFirst { seksjon ->
+                seksjon.heading.isBlank() &&
+                        seksjon.text.isBlank() &&
+                        seksjon.imageUrl.isBlank() &&
+                        seksjon.videoUrl.isBlank()
+            }
+            // Hvis en seksjon mangler innhold, gi bruker beskjed
+            if (tomSeksjon != -1) {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        popupMessage = "Seksjon ${tomSeksjon + 1} må ha minst ett innholdselement"
+                    )
+                }
+                return@launch
+            }
 
             // TODO: Bør kanskje også gjøres validering på rett format for URL-er
+            //  (mulig at det er unødvendig egentlig, URL-er kan være feil uten å være feil format uansett)
+
             val point = Point(
                 userId = userId,
                 title = _uiState.value.title,
@@ -114,7 +132,7 @@ class CreatePointViewModel(
         }
     }
 
-    // Nullstilling av popupMessage
+    // ===== Nullstilling av popupMessage =====
     fun dismissPopup() {
         _uiState.update { it.copy(popupMessage = null) }
     }

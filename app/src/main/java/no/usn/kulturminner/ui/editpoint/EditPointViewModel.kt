@@ -55,7 +55,7 @@ class EditPointViewModel(
                 popupMessage = null,
             ) }
 
-            // === VALIDERING AV RADIUS ===
+            // Validering av radius
             val radiusInt = _uiState.value.radius.toIntOrNull()
             if (radiusInt == null || radiusInt < 5) {
                 _uiState.update {
@@ -66,6 +66,27 @@ class EditPointViewModel(
                 }
                 return@launch
             }
+
+            // Validering av innhold i seksjoner
+            val tomSeksjon = _uiState.value.sections.indexOfFirst { seksjon ->
+                seksjon.heading.isBlank() &&
+                        seksjon.text.isBlank() &&
+                        seksjon.imageUrl.isBlank() &&
+                        seksjon.videoUrl.isBlank()
+            }
+            // Hvis en seksjon mangler innhold, gi bruker beskjed
+            if (tomSeksjon != -1) {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        popupMessage = "Seksjon ${tomSeksjon + 1} må ha minst ett innholdselement"
+                    )
+                }
+                return@launch
+            }
+
+            // TODO: Bør kanskje også gjøres validering på rett format for URL-er
+            //  (mulig at det er unødvendig egentlig, URL-er kan være feil uten å være feil format uansett)
 
             val pointToUpdate = Point(
                 id = _uiState.value.pointId,
@@ -78,9 +99,6 @@ class EditPointViewModel(
                 sections = _uiState.value.sections.map { it.toSection() }
             )
 
-            // isSuccess (i onSuccess greina) blir et flagg for at man kan fullføre redigeringen og navigeres tilbake til Admin-dashboard
-            // TODO: etter at serverkommunikasjon er på plass og man faktisk kan lagre endringer må denne navigeringen implementeres
-            // (men det gjøres i Screen/NavHost, basert på boolean-tilstanden i isSuccess, ikke her i ViewModel)
             pointRepository.updatePoint(pointToUpdate)
                 .onSuccess {
                     _uiState.update { it.copy(isSaving = false, isSuccess = true) }
@@ -141,7 +159,7 @@ class EditPointViewModel(
         }
     }
 
-    // Nullstilling av popupMessage
+    // ===== Nullstilling av popupMessage =====
     fun dismissPopup() {
         _uiState.update { it.copy(popupMessage = null) }
     }
