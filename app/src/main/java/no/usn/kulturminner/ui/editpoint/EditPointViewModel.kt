@@ -17,8 +17,10 @@ class EditPointViewModel(
     val uiState = _uiState.asStateFlow()
 
     // Midlertidig hardkodet brukerID basert på det som ligger i databasen
-    val perId: String = "71af648b-b071-4e3e-bb30-d318487d65de"
-    val userId: String =  perId // Utbyttbar midlertidig id til spørring mot databasen
+    val dummyId: String = "u1" // id-en til dummybruker (lokale data)
+    val arneId: String = "0667a905-b6e3-42a8-9020-dcc387d24f1a"
+    val toreId: String = "c9329389-90ac-472f-8497-8bce166b3290"
+    val userId: String =  arneId // byttes etter behov (må byttes likt i 3 ViewModels: Overview, CreatePoint og EditPoint)
 
     fun loadPoint(id: String) {
         viewModelScope.launch {
