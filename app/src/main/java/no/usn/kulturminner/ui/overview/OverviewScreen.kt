@@ -8,11 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
@@ -238,16 +240,52 @@ fun OverviewScreen(
                 if (uiState.pointToDeleteId != null) {
                     AlertDialog(
                         onDismissRequest = onCancelDelete,
-                        title = { Text("Slett punkt") },
-                        text = { Text("Er du sikker på at du vil slette dette punktet? Dette kan ikke angres.") },
-                        confirmButton = {
-                            TextButton(onClick = onConfirmDelete) {
-                                Text("Slett", color = Color(0xFFE25C5C))
+
+                        shape = RoundedCornerShape(20.dp),
+
+                        containerColor = Color.White,
+                        tonalElevation = 8.dp, // shadow / elevation
+
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = Color(0xFFE25C5C)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Slett punkt")
                             }
                         },
+
+                        text = {
+                            Text(
+                                text = "Er du sikker på at du vil slette dette punktet? Dette kan ikke angres.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        },
+
+                        confirmButton = {
+                            TextButton(
+                                onClick = onConfirmDelete
+                            ) {
+                                Text(
+                                    "Slett",
+                                    color = Color(0xFFE25C5C),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        },
+
                         dismissButton = {
-                            TextButton(onClick = onCancelDelete) {
-                                Text("Avbryt")
+                            TextButton(
+                                onClick = onCancelDelete
+                            ) {
+                                Text(
+                                    "Avbryt",
+                                    color = Color(0xFF6B6B6B)
+                                )
                             }
                         }
                     )

@@ -18,8 +18,8 @@ data class ExploreUiState (
     // Data
     val routes: List<Route> = emptyList(),
     val points: List<Point> = emptyList(),
-    val activePoint: Point? = null,
-    val pointNearby: Point? = null,
+    val activePoint: Point? = null, // Skal brukes til serverdata
+    val pointNearby: Point? = null, // Til foreløpig dummydata
     val userLat: Double = 0.0,
     val userLng: Double = 0.0,
 

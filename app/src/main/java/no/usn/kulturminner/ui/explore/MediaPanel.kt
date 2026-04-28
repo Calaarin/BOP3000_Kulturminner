@@ -46,8 +46,8 @@ fun MediaPanel(
             }
         }
 
-        uiState.pointNearby != null -> {
-            val point = uiState.pointNearby
+        uiState.activePoint != null -> {
+            val point = uiState.activePoint
 
             Column(
                 modifier = modifier

@@ -23,8 +23,8 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
-        fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
-        startLocationUpdates()
+        // fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
+        // startLocationUpdates()
         startSimulatedMovement()
     }
 
@@ -35,7 +35,7 @@ class ExploreViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }
 
-            pointRepository.getDummyPoints()           // Bruk getAllPoints() til serverdata og getDummyPoints() til lokale dummydata
+            pointRepository.getAllPoints()           // Bruk getAllPoints() til serverdata og getDummyPoints() til lokale dummydata
                 .onSuccess { points ->
                     _uiState.update { it.copy(points = points, isPointListLoading = false) }
                 }
@@ -54,8 +54,6 @@ class ExploreViewModel(
                     userLng = location.longitude
                 )}
                 // checkProximityToPoints(location)
-                // checkProximityToPoints fjernes herfra –
-                // styres av startSimulatedMovement under demo
             }
         }
     }
@@ -190,16 +188,14 @@ class ExploreViewModel(
                     simulatedLng = lng
                 )}
 
-                // Sjekk proximity basert på simulert posisjon
-                val distance = FloatArray(1)
-                Location.distanceBetween(lat, lng, 59.41044, 9.06212, distance)
-                val nearbyPoint = if (distance[0] <= 80) {
-                    _uiState.value.points.find { it.id == "p2" }
-                } else null
+                // Bruk checkProximityToPoints med simulert posisjon
+                val simulertLocation = Location("simulert").apply {
+                    latitude = lat
+                    longitude = lng
+                }
+                checkProximityToPoints(simulertLocation)
 
-                _uiState.update { it.copy(activePoint = nearbyPoint) }
-
-                delay(500L) // 2 sekunder mellom hvert steg
+                delay(500L)
             }
         }
     }
@@ -215,7 +211,7 @@ class ExploreViewModel(
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(
-                            pointNearby = point,
+                            activePoint = point,
                             isPointLoading = false
                         )
                     }

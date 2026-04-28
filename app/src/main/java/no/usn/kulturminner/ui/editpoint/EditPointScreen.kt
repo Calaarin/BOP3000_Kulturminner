@@ -393,7 +393,7 @@ fun EditPointScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F80ED)),
                                 enabled = !uiState.isSaving
                             ) {
-                               Text("Lagre punkt")
+                               Text("Lagre endringer")
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
