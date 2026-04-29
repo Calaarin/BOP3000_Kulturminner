@@ -19,6 +19,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
+import no.usn.kulturminner.data.repository.RouteRepository
 import no.usn.kulturminner.data.repository.SectionRepository
 import no.usn.kulturminner.data.repository.SectionRepositoryImpl
 import no.usn.kulturminner.data.repository.UserRepositoryImpl
@@ -61,7 +62,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
         sectionRepository = sectionRepo
     ) }
     val userRepo = remember { UserRepositoryImpl(UserSource()) }
-    // val routeRepo = remember { RouteRepositoryImpl(RouteSource()) } - kommer senere
+    val routeRepo = remember { RouteRepository() }
 
     Scaffold(
         topBar = {
@@ -113,7 +114,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             // --- EXPLORE ---
             composable(Destinations.Explore.route) {
                 val viewModel: ExploreViewModel = viewModel(
-                    factory = ExploreViewModelFactory(pointRepo, locationRepo)   // routeRepo skal legges til etter hvert
+                    factory = ExploreViewModelFactory(pointRepo, locationRepo, routeRepo)   // routeRepo skal legges til etter hvert
                 )
                 val uiState by viewModel.uiState.collectAsState()
 

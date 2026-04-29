@@ -11,11 +11,12 @@ import kotlinx.coroutines.delay
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepository
+import no.usn.kulturminner.data.repository.RouteRepository
 
 class ExploreViewModel(
     private val pointRepository: PointRepository,
-    private val locationRepository: LocationRepository
-    // routeRepository legges til senere
+    private val locationRepository: LocationRepository,
+    private val routeRepository: RouteRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ExploreUiState())
@@ -23,6 +24,7 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
+        // fetchRoutes() // Legger til når Arne har retta formatet
         // fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
         // startLocationUpdates()
         startSimulatedMovement()
@@ -30,7 +32,22 @@ class ExploreViewModel(
 
     // ======================================= EXPLOREMAP =======================================
 
-    // Hente alle punkt til kart
+    // Hente ruter til kart (fra oppdragsgivers server - statisk fil-hosting)
+    fun fetchRoutes() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(areRoutesLoading = true, routeError = null) }
+
+            routeRepository.getRoutes()
+                .onSuccess { routes ->
+                    _uiState.update { it.copy(routes = routes) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(routeError = e.message, areRoutesLoading = false) }
+                }
+        }
+    }
+
+    // Hente alle punkter til kart
     fun fetchAllPoints() {
         viewModelScope.launch {
             _uiState.update { it.copy(isPointListLoading = true, pointError = null) }

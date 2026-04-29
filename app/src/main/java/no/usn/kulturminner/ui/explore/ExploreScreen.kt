@@ -88,7 +88,7 @@ fun ExploreScreen(
                 style.addSource(GeoJsonSource("ruter-source", uiState.routes.toGeoJson()))
                 style.addLayer(
                     LineLayer("ruter-lag", "ruter-source").withProperties(
-                        PropertyFactory.lineColor("#8B4513"),
+                        PropertyFactory.lineColor("#8B1A1A"),
                         PropertyFactory.lineWidth(3f),
                         PropertyFactory.lineOpacity(0.8f)
                     )
