@@ -35,8 +35,7 @@ fun List<Route>.toGeoJson(): String {
                 "coordinates": [$coords]
             },
             "properties": {
-                "id": "${route.id}",
-                "name": "${route.name}"
+                "id": "${route.id}"
             }
         }
         """.trimIndent()
