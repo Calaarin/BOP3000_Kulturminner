@@ -165,6 +165,14 @@ fun ExploreScreen(
             source.setGeoJson(uiState.points.toGeoJson())
         }
 
+        // Samme bruk av LaunchedEffect for å legge til ruter i kart når de har blitt hentet fra oppdragsgivers server
+        LaunchedEffect(uiState.routes) {
+            val map = mapRef ?: return@LaunchedEffect
+            val style = map.style ?: return@LaunchedEffect
+            val source = style.getSourceAs<GeoJsonSource>("ruter-source") ?: return@LaunchedEffect
+            source.setGeoJson(uiState.routes.toGeoJson())
+        }
+
         // Oppdaterer simulert brukerposisjon når den endres
         LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
             val map = mapRef ?: return@LaunchedEffect

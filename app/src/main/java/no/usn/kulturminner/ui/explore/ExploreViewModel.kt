@@ -24,7 +24,7 @@ class ExploreViewModel(
 
     init {
         fetchAllPoints()
-        // fetchRoutes() // Legger til når Arne har retta formatet
+        fetchRoutes()
         // fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
         // startLocationUpdates()
         startSimulatedMovement()

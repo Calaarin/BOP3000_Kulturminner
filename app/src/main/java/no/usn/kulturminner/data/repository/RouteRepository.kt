@@ -11,7 +11,7 @@ import java.net.URL
 class RouteRepository {
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val RUTE_URL = "https://boturlag.no/DerDuGaar/Trase.geojson"
+    private val RUTE_URL = "https://boturlag.no/DerDuGaar/Trase_wgs.geojson"
 
     suspend fun getRoutes(): Result<List<Route>> = runCatching {
         withContext(Dispatchers.IO) { // for at nettverksforespørselen skal skje på IO-tråden
