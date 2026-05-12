@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import no.usn.kulturminner.R
 import no.usn.kulturminner.data.model.Section
+import no.usn.kulturminner.ui.components.AudioPlayer
+import no.usn.kulturminner.ui.components.VideoPlayer
 
 @Composable
 fun MediaPanel(
@@ -69,6 +71,12 @@ fun MediaPanel(
 
                 Spacer(modifier = Modifier.height(34.dp))
 
+                // Lyd (dette settes på punkt-nivå, ikke seksjon, siden vi har én lydfil per punkt)
+                point.audioUrl?.takeIf { it.isNotBlank() }?.let { url ->
+                    AudioPlayer(url = url)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 // Iterer gjennom alle seksjoner
                 point.sections.forEachIndexed { index, section ->
                     SectionContent(section, index)
@@ -112,9 +120,9 @@ private fun SectionContent(section: Section, index: Int) {
         }
 
         // Bilde fra URL med AsyncImage
-        if (!section.imageUrl.isNullOrBlank()) {
+        section.imageUrl?.takeIf { it.isNotBlank() }?.let { url ->
             AsyncImage(
-                model = section.imageUrl,
+                model = url,
                 contentDescription = section.heading ?: "Bilde av opplevelsespunkt",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,6 +135,15 @@ private fun SectionContent(section: Section, index: Int) {
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // For video viser vi bare ingenting foreløpig
+        // Video
+        section.videoUrl?.takeIf { it.isNotBlank() }?.let { url ->
+            VideoPlayer(
+                url = url,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }

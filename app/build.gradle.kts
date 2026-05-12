@@ -79,4 +79,7 @@ dependencies {
     implementation(libs.play.services.location)
     // Til AsyncImage
     implementation(libs.coil.compose)
+    // Til Media3/ExoPlayer
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
 }
