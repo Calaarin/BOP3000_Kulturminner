@@ -15,10 +15,11 @@ import androidx.compose.ui.unit.dp
 fun UploadButton(
     text: String,
     borderColor: Color = Color(0xFF4F46A3),
-    backgroundColor: Color = Color(0xFFDEDDE6)
+    backgroundColor: Color = Color(0xFFDEDDE6),
+    onClick: () -> Unit = {}
 ) {
     OutlinedButton(
-        onClick = { },
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, borderColor),

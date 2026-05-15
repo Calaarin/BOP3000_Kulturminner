@@ -47,7 +47,7 @@ import no.usn.kulturminner.ui.overview.SortType
 fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
 
     val navController = rememberNavController()
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
 
@@ -151,7 +151,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             /// --- CREATE POINT ---
             composable(Destinations.CreatePoint.route) {
                 val viewModel: CreatePointViewModel = viewModel(
-                    factory = CreatePointViewModelFactory(pointRepo)
+                    factory = CreatePointViewModelFactory(pointRepo, context)
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
@@ -173,6 +173,12 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onExpandSectionCountDropdown = viewModel::expandSectionCountDropdown,
                     onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
                     onSectionCountChange = viewModel::setSectionCount,
+                    onImageSelected = viewModel::selectImage,
+                    onVideoSelected = viewModel::selectVideo,
+                    onAudioSelected = viewModel::selectAudio,
+                    onRemoveImage = viewModel::removeImage,
+                    onRemoveVideo = viewModel::removeVideo,
+                    onRemoveAudio = viewModel::removeAudio,
                     onSaveClick = viewModel::createPoint,
                     onCancelClick = { navController.popBackStack() },
                     onDismissPopup = viewModel::dismissPopup

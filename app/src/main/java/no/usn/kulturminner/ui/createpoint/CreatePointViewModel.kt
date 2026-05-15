@@ -1,5 +1,8 @@
 package no.usn.kulturminner.ui.createpoint
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,16 +13,21 @@ import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.PointRepository
 
 class CreatePointViewModel(
-    private val pointRepository: PointRepository
+    private val pointRepository: PointRepository,
+    private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePointUiState())
     val uiState = _uiState.asStateFlow()
 
+    // id-en til dummybruker (lokale data)
+    val dummyId: String = "u1"
+
     // Midlertidig hardkodet brukerID basert på det som ligger i databasen
-    val dummyId: String = "u1" // id-en til dummybruker (lokale data)
     val arneId: String = "0667a905-b6e3-42a8-9020-dcc387d24f1a"
     val toreId: String = "c9329389-90ac-472f-8497-8bce166b3290"
+
+    // Valgt brukerId blant de 3 over:
     val userId: String =  arneId // byttes etter behov (må byttes likt i 3 ViewModels: Overview, CreatePoint og EditPoint)
 
     // Hovedfunksjonen for å opprette punkt
@@ -50,7 +58,7 @@ class CreatePointViewModel(
                         seksjon.imageUrl.isBlank() &&
                         seksjon.videoUrl.isBlank()
             }
-            // Hvis en seksjon mangler innhold, gi bruker beskjed
+            // Hvis en seksjon mangler innhold, så gis bruker beskjed om hvilken
             if (tomSeksjon != -1) {
                 _uiState.update {
                     it.copy(
@@ -62,7 +70,8 @@ class CreatePointViewModel(
             }
 
             // TODO: Bør kanskje også gjøres validering på rett format for URL-er
-            //  (mulig at det er unødvendig egentlig, URL-er kan være feil uten å være feil format uansett)
+            //  (Mulig at det er unødvendig egentlig, URL-er kan være feil uten å være feil format uansett).
+            //  Funker det ikke så funker det ikke.
 
             val point = Point(
                 userId = userId,
@@ -108,6 +117,111 @@ class CreatePointViewModel(
 
     fun updateSection(index: Int, section: SectionUiState) = _uiState.update {
         it.copy(sections = it.sections.toMutableList().apply { set(index, section) })
+    }
+
+    // ======= Funksjoner for å legge til og fjerne mediefiler (opplasting fra Android enhet) =======
+
+    fun selectImage(sectionIndex: Int, uri: Uri) {
+        val extension = context.contentResolver
+            .getType(uri)  // dette returnerer MIME-type f.eks "image/jpeg" som brukes til formatsjekk
+
+        val supported = listOf("image/jpeg", "image/jpg", "image/png")
+        if (extension !in supported) {
+            _uiState.update { it.copy(popupMessage = "Filformat støttes ikke. Bruk jpg, jpeg eller png.") }
+            return
+        }
+
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            sections[sectionIndex] = sections[sectionIndex].copy(
+                imageUri = uri,
+                imageUrl = getFileName(uri),
+                isImageUploaded = true
+            )
+            state.copy(sections = sections)
+        }
+    }
+
+    fun selectVideo(sectionIndex: Int, uri: Uri) {
+        val mimeType = context.contentResolver.getType(uri)
+        val supported = listOf("video/mp4")
+
+        if (mimeType !in supported) {
+            _uiState.update { it.copy(popupMessage = "Filformat støttes ikke. Bruk mp4.") }
+            return
+        }
+
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            sections[sectionIndex] = sections[sectionIndex].copy(
+                videoUri = uri,
+                videoUrl = getFileName(uri), // TODO: fjern kommentar? dette er bare en fallback på det brukeren ser som bekreftelse i tekstfeltet hvis lastPathSegment returnerer null
+                isVideoUploaded = true
+            )
+            state.copy(sections = sections)
+        }
+    }
+
+    fun selectAudio(uri: Uri) {
+        val mimeType = context.contentResolver.getType(uri)
+        val supported = listOf("audio/mpeg", "audio/wav")
+
+        if (mimeType !in supported) {
+            _uiState.update { it.copy(popupMessage = "Filformat støttes ikke. Bruk mp3 eller wav.") }
+            return
+        }
+
+        _uiState.update { it.copy(
+            audioUri = uri,
+            audioUrl = uri.lastPathSegment ?: "Audiofil valgt",
+            isAudioUploaded = true
+        )}
+    }
+
+    fun removeImage(sectionIndex: Int) {
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            sections[sectionIndex] = sections[sectionIndex].copy(
+                imageUri = null,
+                imageUrl = "",
+                isImageUploaded = false
+            )
+            state.copy(sections = sections)
+        }
+    }
+
+    fun removeVideo(sectionIndex: Int) {
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            sections[sectionIndex] = sections[sectionIndex].copy(
+                videoUri = null,
+                videoUrl = "",
+                isVideoUploaded = false
+            )
+            state.copy(sections = sections)
+        }
+    }
+
+    fun removeAudio() {
+        _uiState.update { it.copy(
+            audioUri = null,
+            audioUrl = "",
+            isAudioUploaded = false
+        )}
+    }
+
+    // Hjelpefunsjon for å hente filnavn fra URI-stien (til visning i tekstfelt)
+    fun getFileName(uri: Uri): String {
+        var result = "Fil valgt"
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex != -1) {
+                    result = cursor.getString(nameIndex)
+                }
+            }
+        }
+        return result
     }
 
     // ======= Håndtering av antall seksjon-skjema i skjermen =======

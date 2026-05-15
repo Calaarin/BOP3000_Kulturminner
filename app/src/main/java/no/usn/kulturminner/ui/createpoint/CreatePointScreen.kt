@@ -16,6 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.platform.LocalContext
 import org.maplibre.android.style.layers.SymbolLayer
@@ -25,10 +29,12 @@ import org.maplibre.android.style.sources.GeoJsonSource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.material.icons.filled.Close
 
 import no.usn.kulturminner.R
 import no.usn.kulturminner.ui.components.BaseMap
@@ -53,6 +59,14 @@ fun CreatePointScreen(
     onExpandSectionCountDropdown: () -> Unit,
     onDismissSectionCountDropdown: () -> Unit,
     onSectionCountChange: (Int) -> Unit,
+
+    onImageSelected: (Int, Uri) -> Unit,
+    onVideoSelected: (Int, Uri) -> Unit,
+    onAudioSelected: (Uri) -> Unit,
+    onRemoveImage: (Int) -> Unit,
+    onRemoveVideo: (Int) -> Unit,
+    onRemoveAudio: () -> Unit,
+
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     onDismissPopup: () -> Unit
@@ -68,6 +82,14 @@ fun CreatePointScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val isKeyboardVisible = WindowInsets.isImeVisible
 
+    // Laucher for lydopplasting
+    val audioPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { onAudioSelected(it) }
+    }
+
+    // Start av UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +108,7 @@ fun CreatePointScreen(
             )
         }
 
-        // Kart til plassering av punkt so første item
+        // Kart til plassering av punkt
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,11 +214,40 @@ fun CreatePointScreen(
                 FormLabel("LYDFIL")
                 SmallInputField(
                     value = uiState.audioUrl,
-                    onValueChange = onAudioUrlChange,
-                    placeholder = "Lim inn URL eller last opp fil"
+                    onValueChange = { if (!uiState.isAudioUploaded) onAudioUrlChange(it) },
+                    placeholder = "Lim inn URL eller last opp fil",
+                    readOnly = uiState.isAudioUploaded,
+                    textColor = if (uiState.isAudioUploaded) Color(0xFF2E7D32) else Color.Black,
+                    trailingIcon = if (uiState.isAudioUploaded) {
+                        {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                modifier = Modifier
+                                    .clickable { onRemoveAudio() }
+                                    .padding(end = 18.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color.Gray
+                                )
+                                Text(
+                                    text = "Fjern",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    } else null
                 )
 
-                UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
+                UploadButton(
+                    text = "Last opp fil",
+                    borderColor = uploadBorderColor,
+                    onClick = { audioPickerLauncher.launch(arrayOf("audio/mpeg", "audio/wav")) }
+                )
 
                 Text(
                     text = "Støttede formater: mp3, wav",
@@ -255,6 +306,20 @@ fun CreatePointScreen(
 
                 // Dynamiske seksjoner
                 uiState.sections.forEachIndexed { index, section ->
+
+                    // Laucher til bildeopplasting
+                    val imagePickerLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.PickVisualMedia()
+                    ) { uri ->
+                        uri?.let { onImageSelected(index, it) }  // ← index herfra
+                    }
+                    // Launcher til videoopplasting
+                    val videoPickerLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.PickVisualMedia()
+                    ) { uri ->
+                        uri?.let { onVideoSelected(index, it) }
+                    }
+
                     SectionHeader("Seksjon ${index + 1}")
 
                     FormLabel("OVERSKRIFT")
@@ -274,10 +339,45 @@ fun CreatePointScreen(
                     FormLabel("BILDE")
                     SmallInputField(
                         value = section.imageUrl,
-                        onValueChange = { onUpdateSection(index, section.copy(imageUrl = it)) },
-                        placeholder = "Lim inn URL eller last opp fil"
+                        onValueChange = { if (!section.isImageUploaded) onUpdateSection(index, section.copy(imageUrl = it)) },
+                        placeholder = "Lim inn URL eller last opp fil",
+                        readOnly = section.isImageUploaded,
+                        textColor = if (section.isImageUploaded) Color(0xFF2E7D32) else Color.Black,
+                        trailingIcon = if (section.isImageUploaded) {
+                            {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    modifier = Modifier
+                                        .clickable { onRemoveImage(index) }
+                                        .padding(end = 18.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp),
+                                        tint = Color.Gray
+                                    )
+                                    Text(
+                                        text = "Fjern",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.Gray
+                                    )
+                                }
+                            }
+                        } else null
                     )
-                    UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
+
+                    // Bilde-opplastingsknapp
+                    UploadButton(
+                        text = "Last opp fil",
+                        borderColor = uploadBorderColor,
+                        onClick = {
+                            imagePickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
 
                     Text(
                         text = "Støttede formater: jpg, jpeg, png",
@@ -290,10 +390,45 @@ fun CreatePointScreen(
                     FormLabel("VIDEO")
                     SmallInputField(
                         value = section.videoUrl,
-                        onValueChange = { onUpdateSection(index, section.copy(videoUrl = it)) },
-                        placeholder = "Lim inn URL eller last opp fil"
+                        onValueChange = { if (!section.isVideoUploaded) onUpdateSection(index, section.copy(videoUrl = it)) },
+                        placeholder = "Lim inn URL eller last opp fil",
+                        readOnly = section.isVideoUploaded,
+                        textColor = if (section.isVideoUploaded) Color(0xFF2E7D32) else Color.Black,
+                        trailingIcon = if (section.isVideoUploaded) {
+                            {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    modifier = Modifier
+                                        .clickable { onRemoveVideo(index) }
+                                        .padding(end = 18.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp),
+                                        tint = Color.Gray
+                                    )
+                                    Text(
+                                        text = "Fjern",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.Gray
+                                    )
+                                }
+                            }
+                        } else null
                     )
-                    UploadButton(text = "Last opp fil", borderColor = uploadBorderColor)
+
+                    // Video-opplastingsknapp
+                    UploadButton(
+                        text = "Last opp fil",
+                        borderColor = uploadBorderColor,
+                        onClick = {
+                            videoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                            )
+                        }
+                    )
 
                     Text(
                         text = "Støttede formater: mp4",

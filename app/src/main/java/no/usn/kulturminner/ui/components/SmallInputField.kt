@@ -12,11 +12,16 @@ import androidx.compose.ui.unit.dp
 fun SmallInputField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    readOnly: Boolean = false,   // Skal ikke kunne redigeres hvis fil er lastet opp og filnavn vises i tekstfelt
+    textColor: Color = Color.Black, // svart input-tekst som default, men kan endres etter behov
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        readOnly = readOnly,
+        trailingIcon = trailingIcon,
         modifier = Modifier.fillMaxWidth(),
         placeholder = {
             Text(
@@ -24,7 +29,7 @@ fun SmallInputField(
                 color = Color(0xFF9E9E9E) // Grå placeholder tekst burde se bedre ut tror jeg
             )
         },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),  // svart input-tekst
+        textStyle = LocalTextStyle.current.copy(color = textColor),
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
         colors = OutlinedTextFieldDefaults.colors(

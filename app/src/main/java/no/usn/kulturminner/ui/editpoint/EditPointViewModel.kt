@@ -16,10 +16,14 @@ class EditPointViewModel(
     private val _uiState = MutableStateFlow(EditPointUiState())
     val uiState = _uiState.asStateFlow()
 
+    // id-en til dummybruker (lokale data)
+    val dummyId: String = "u1"
+
     // Midlertidig hardkodet brukerID basert på det som ligger i databasen
-    val dummyId: String = "u1" // id-en til dummybruker (lokale data)
     val arneId: String = "0667a905-b6e3-42a8-9020-dcc387d24f1a"
     val toreId: String = "c9329389-90ac-472f-8497-8bce166b3290"
+
+    // Valgt brukerId blant de 3 over:
     val userId: String =  arneId // byttes etter behov (må byttes likt i 3 ViewModels: Overview, CreatePoint og EditPoint)
 
     fun loadPoint(id: String) {
