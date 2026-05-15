@@ -9,8 +9,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.MediaType.Companion.toMediaType
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.PointRepository
+import no.usn.kulturminner.data.api.MediaApi
+import no.usn.kulturminner.data.model.Section
 
 class CreatePointViewModel(
     private val pointRepository: PointRepository,
@@ -73,14 +78,58 @@ class CreatePointViewModel(
             //  (Mulig at det er unødvendig egentlig, URL-er kan være feil uten å være feil format uansett).
             //  Funker det ikke så funker det ikke.
 
+            // Last opp mediafiler og bytt URI med URL
+            val state = _uiState.value
+
+            // Lyd – enten opplastet fil eller innskrevet URL
+            val finalAudioUrl = when {
+                state.isAudioUploaded && state.audioUri != null ->
+                    runCatching { uploadMedia(state.audioUri, "audio") }
+                        .getOrElse {
+                            _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av lydfil") }
+                            return@launch
+                        }
+                else -> state.audioUrl.ifBlank { null }
+            }
+
+            // Seksjoner – last opp bilde og video per seksjon
+            val ferdigeSeksjoner = state.sections.mapIndexed { index, seksjon ->
+                val finalImageUrl = when {
+                    seksjon.isImageUploaded && seksjon.imageUri != null ->
+                        runCatching { uploadMedia(seksjon.imageUri, "image") }
+                            .getOrElse {
+                                _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av bilde i seksjon ${index + 1}") }
+                                return@launch
+                            }
+                    else -> seksjon.imageUrl.ifBlank { null }
+                }
+
+                val finalVideoUrl = when {
+                    seksjon.isVideoUploaded && seksjon.videoUri != null ->
+                        runCatching { uploadMedia(seksjon.videoUri, "video") }
+                            .getOrElse {
+                                _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av video i seksjon ${index + 1}") }
+                                return@launch
+                            }
+                    else -> seksjon.videoUrl.ifBlank { null }
+                }
+
+                Section(
+                    heading = seksjon.heading.ifBlank { null },
+                    text = seksjon.text.ifBlank { null },
+                    imageUrl = finalImageUrl,
+                    videoUrl = finalVideoUrl
+                )
+            }
+
             val point = Point(
                 userId = userId,
-                title = _uiState.value.title,
-                lat = _uiState.value.lat,
-                lng = _uiState.value.lng,
+                title = state.title,
+                lat = state.lat,
+                lng = state.lng,
                 radius = radiusInt,
-                audioUrl = _uiState.value.audioUrl.ifBlank { null },
-                sections = _uiState.value.sections.map { it.toSection() }
+                audioUrl = finalAudioUrl,
+                sections = ferdigeSeksjoner
             )
 
             pointRepository.createPoint(point)
@@ -91,6 +140,23 @@ class CreatePointViewModel(
                     _uiState.update { it.copy(isSaving = false, error = e.message) }
                 }
         }
+    }
+
+    // ====== Hjelpefunksjoner for konvertering av Uri til MultiPartBody og Mediaopplasting ======
+
+    private fun Uri.toMultipartPart(name: String): MultipartBody.Part {
+        val mimeType = context.contentResolver.getType(this) ?: "application/octet-stream"
+        val inputStream = context.contentResolver.openInputStream(this)!!
+        val bytes = inputStream.readBytes()
+        inputStream.close()
+        val requestBody = bytes.toRequestBody(mimeType.toMediaType())
+        val fileName = getFileName(this)
+        return MultipartBody.Part.createFormData(name, fileName, requestBody)
+    }
+
+    private suspend fun uploadMedia(uri: Uri, type: String): String {
+        val part = uri.toMultipartPart("file")
+        return MediaApi.service.uploadMedia(type, part).url
     }
 
     // ====== Funksjoner for å oppdatere skjema (brukes fra skjermen - blir mye funksjonsreferanser her) =====

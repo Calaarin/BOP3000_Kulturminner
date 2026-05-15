@@ -16,16 +16,16 @@ import androidx.media3.exoplayer.ExoPlayer
 @Composable
 fun AudioPlayer(url: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val exoPlayer = remember {
+    val exoPlayer = remember(url) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(url))
             prepare()
         }
     }
 
-    var isPlaying by remember { mutableStateOf(false) }
+    var isPlaying by remember(url) { mutableStateOf(false) }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(url) {
         onDispose { exoPlayer.release() }
     }
 

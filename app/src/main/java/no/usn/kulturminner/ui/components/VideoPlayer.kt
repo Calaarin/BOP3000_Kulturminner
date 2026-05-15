@@ -16,14 +16,14 @@ import androidx.media3.ui.PlayerView
 @Composable
 fun VideoPlayer(url: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val exoPlayer = remember {
+    val exoPlayer = remember(url) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(url))
             prepare()
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(url) {
         onDispose { exoPlayer.release() }
     }
 
