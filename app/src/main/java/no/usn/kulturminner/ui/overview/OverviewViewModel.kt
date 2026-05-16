@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import no.usn.kulturminner.data.api.DeleteMediaRequest
+import no.usn.kulturminner.data.api.MediaApi
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.model.User
 import no.usn.kulturminner.data.repository.PointRepository
@@ -69,13 +71,30 @@ class OverviewViewModel(
 
     fun confirmDeletePoint() {
         val id = _uiState.value.pointToDeleteId ?: return
+
+        // Finn punktet i lista og samle Supabase-URL-er før vi sletter
+        val point = _uiState.value.points.find { it.id == id }
+        val mediaUrlsToDelete = buildList {
+            point?.audioUrl?.let { if (it.contains("supabase.co/storage")) add(it) }
+            point?.sections?.forEach { section ->
+                section.imageUrl?.let { if (it.contains("supabase.co/storage")) add(it) }
+                section.videoUrl?.let { if (it.contains("supabase.co/storage")) add(it) }
+            }
+        }
+
         _uiState.update { it.copy(pointToDeleteId = null) }
+
         viewModelScope.launch {
             pointRepository.deletePoint(id)
                 .onSuccess {
                     // Oppdaterer lista lokalt uten ny nettverksforespørsel
                     _uiState.update { state ->
                         state.copy(points = state.points.filter { it.id != id })
+                    }
+
+                    // Sletter mediefiler i bakgrunnen – ignorerer bare feil
+                    mediaUrlsToDelete.forEach { url ->
+                        runCatching { MediaApi.service.deleteMedia(DeleteMediaRequest(url)) }
                     }
                 }
                 .onFailure { e ->

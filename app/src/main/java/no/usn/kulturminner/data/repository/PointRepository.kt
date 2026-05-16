@@ -43,8 +43,8 @@ class PointRepositoryImpl(
         val pointId = createdPoint.id ?: error("Punkt fikk ingen id fra server")
 
         // 2. Opprett alle seksjoner med punktets id
-        point.sections.forEach { section ->
-            sectionRepository.createSection(pointId, section).getOrThrow()
+        point.sections.forEachIndexed { index, section ->
+            sectionRepository.createSection(pointId, section.copy(sortOrder = index)).getOrThrow()
         }
 
         createdPoint
@@ -61,8 +61,8 @@ class PointRepositoryImpl(
         updatedPoint.sections.forEach { existing ->
             existing.id?.let { sectionRepository.deleteSection(it) }
         }
-        point.sections.forEach { section ->
-            sectionRepository.createSection(pointId, section).getOrThrow()
+        point.sections.forEachIndexed { index, section ->
+            sectionRepository.createSection(pointId, section.copy(sortOrder = index)).getOrThrow()
         }
 
         updatedPoint
@@ -267,7 +267,8 @@ private fun SectionDto.toModel() = Section(
     heading = heading,
     text = text,
     imageUrl = imageUrl,
-    videoUrl = videoUrl
+    videoUrl = videoUrl,
+    sortOrder = sortOrder
 )
 
 private fun Section.toDto() = SectionDto(
@@ -275,7 +276,8 @@ private fun Section.toDto() = SectionDto(
     heading = heading,
     text = text,
     imageUrl = imageUrl,
-    videoUrl = videoUrl
+    videoUrl = videoUrl,
+    sortOrder = sortOrder
 )
 
 // Konverterer String til Instant (og over til såkalt ISO-8601 format som bør brukes i Instant-klassen)

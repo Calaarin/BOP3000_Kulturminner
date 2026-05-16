@@ -10,5 +10,6 @@ data class SectionDto(
     val heading: String? = null,
     val text: String? = null,
     @SerialName("image_url") val imageUrl: String? = null,
-    @SerialName("video_url") val videoUrl: String? = null
+    @SerialName("video_url") val videoUrl: String? = null,
+    @SerialName("sort_order") val sortOrder: Int? = null
 )

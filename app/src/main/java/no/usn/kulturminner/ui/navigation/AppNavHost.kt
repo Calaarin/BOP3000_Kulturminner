@@ -195,7 +195,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                 val pointId = backStackEntry.arguments?.getString("pointId") ?: ""
 
                 val viewModel: EditPointViewModel = viewModel(
-                    factory = EditPointViewModelFactory(pointRepo)
+                    factory = EditPointViewModelFactory(pointRepo, context)
                 )
 
                 // Last punktet når vi navigerer hit
@@ -225,6 +225,12 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     onExpandSectionCountDropdown = viewModel::expandSectionCountDropdown,
                     onDismissSectionCountDropdown = viewModel::dismissSectionCountDropdown,
                     onSectionCountChange = viewModel::setSectionCount,
+                    onImageSelected = viewModel::selectImage,
+                    onVideoSelected = viewModel::selectVideo,
+                    onAudioSelected = viewModel::selectAudio,
+                    onRemoveImage = viewModel::removeImage,
+                    onRemoveVideo = viewModel::removeVideo,
+                    onRemoveAudio = viewModel::removeAudio,
                     onSaveClick = viewModel::updatePoint,
                     onCancelClick = { navController.popBackStack() },
                     onDismissPopup = viewModel::dismissPopup

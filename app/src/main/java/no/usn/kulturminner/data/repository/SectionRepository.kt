@@ -19,7 +19,8 @@ class SectionRepositoryImpl : SectionRepository {
                 heading = section.heading,
                 text = section.text,
                 imageUrl = section.imageUrl,
-                videoUrl = section.videoUrl
+                videoUrl = section.videoUrl,
+                sortOrder = section.sortOrder
             )
         )
     }
@@ -27,7 +28,7 @@ class SectionRepositoryImpl : SectionRepository {
     override suspend fun deleteSection(id: String): Result<Unit> = runCatching {
         SectionApi.service.deleteSection(id)
     }
-
+    // Det er sannsynlig at denne ikke kommer til å tas i bruk likevel av pragmatiske årsaker
     override suspend fun updateSection(id: String, section: Section): Result<Unit> = runCatching {
         SectionApi.service.updateSection(id, section.toDto())
     }
@@ -40,7 +41,8 @@ private fun SectionDto.toModel() = Section(
     heading = heading,
     text = text,
     imageUrl = imageUrl,
-    videoUrl = videoUrl
+    videoUrl = videoUrl,
+    sortOrder = sortOrder
 )
 
 private fun Section.toDto() = SectionDto(
@@ -48,5 +50,6 @@ private fun Section.toDto() = SectionDto(
     heading = heading,
     text = text,
     imageUrl = imageUrl,
-    videoUrl = videoUrl
+    videoUrl = videoUrl,
+    sortOrder = sortOrder
 )

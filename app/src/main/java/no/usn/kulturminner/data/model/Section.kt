@@ -6,5 +6,6 @@ data class Section(
     val heading: String? = null,                    // Valgfri overskrift
     val text: String? = null,                       // Valgfri avsnitt med tekst
     val imageUrl: String? = null,                   // Valgfri bilde
-    val videoUrl: String? = null                    // Valgfri video
+    val videoUrl: String? = null,                   // Valgfri video
+    val sortOrder: Int? = null                      // Indeksering til sortering av seksjonslista ved DB-query
 )

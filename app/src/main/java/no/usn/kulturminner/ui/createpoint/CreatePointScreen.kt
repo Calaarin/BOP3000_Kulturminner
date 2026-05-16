@@ -97,10 +97,10 @@ fun CreatePointScreen(
     ) {
         // Popup med melding ved lagring av punkt
         if (uiState.isSaving) {
-            SavingDialog(message = "Oppretter punkt...")
+            SavingDialog(message = uiState.savingMessage)
         }
 
-        // Feilmelding for feil format i radius tekstfelt
+        // Hvis det er opprettet popup-message vises den i MessageDialog øverst
         uiState.popupMessage?.let { message ->
             MessageDialog(
                 message = message,
@@ -186,7 +186,7 @@ fun CreatePointScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 220.dp)  // setter bare statisk visuell høyde av kartdelen for nå
+                .padding(top = 220.dp)  // setter bare statisk visuell høyde av kartdelen
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 120.dp)  // plass til bunnpanel
         ) {

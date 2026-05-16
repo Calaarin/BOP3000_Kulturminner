@@ -1,24 +1,23 @@
 package no.usn.kulturminner.ui.createpoint
 
 import android.net.Uri
-import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.model.Section
-import no.usn.kulturminner.ui.editpoint.EditPointUiState
 
 data class CreatePointUiState (
-    // Lasting / lagring / error tilstander
+    // Lasting / lagring / error tilstander / tilbakemeldinger til bruker
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,         // Brukes som sjekk før man navigerer tilbake etter lagring
-    val popupMessage: String? = null,        // Brukes til å gi feilmelding om ugyldig verdi for radius
+    val popupMessage: String? = null,       // Brukes til å gi feilmeldinger til bruker i popup-vindu
+    val savingMessage: String = "Oppretter punkt...",
 
     // Seksjonshåndtering
     var sectionsExpanded: Boolean = false,
     val selectedSectionCount: Int = 1,
     val isSectionCountDropdownExpanded: Boolean = false,
 
-    // Tilstand på om fil er lastet opp
+    // Tilstand på om audiofil er lastet opp
     val isAudioUploaded: Boolean = false,   // Denne styrer om tekstfelt for lydfil er låst
 
     // Punkt-data (dataene oppdateres både fra server og brukerinput)
@@ -43,9 +42,9 @@ data class SectionUiState(
     val videoUrl: String = "",
     val videoUri: Uri? = null,
 
-    // Tilstand på om fil er lastet opp innen seksjon
+    // Tilstand på om mediefiler er lastet opp innen seksjon
     val isImageUploaded: Boolean = false,       // Styrer om tekstfelt er låst
-    val isVideoUploaded: Boolean = false,       // TODO: Vurder om disse skal i generell CreatePointUiState. Tror det gir mest mening å ha dem her.
+    val isVideoUploaded: Boolean = false,
 )
 
 
@@ -53,7 +52,7 @@ data class SectionUiState(
 // ===== Mapperfunksjon mellom Domain/dataklasse og UiState (Extension-funksjon for UiState) =====
 
 
-// Brukes i funksjonen updatePoint i EditPointViewModel
+// Brukes i funksjonen updatePoint i EditPointViewModel (Kommer antageligvis ikke til å bli brukt lengre)
 fun SectionUiState.toSection() = Section(
     id = id,
     heading = heading.ifBlank { null },

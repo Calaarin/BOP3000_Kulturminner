@@ -83,34 +83,44 @@ class CreatePointViewModel(
 
             // Lyd – enten opplastet fil eller innskrevet URL
             val finalAudioUrl = when {
-                state.isAudioUploaded && state.audioUri != null ->
+                state.isAudioUploaded && state.audioUri != null -> {
+                    // Tilbakemelding til bruker om at lydfil lastes opp til database (siden dette kan ta litt tid)
+                    _uiState.update { it.copy(savingMessage = "Laster opp lydfil...") }
                     runCatching { uploadMedia(state.audioUri, "audio") }
                         .getOrElse {
                             _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av lydfil") }
                             return@launch
                         }
+                }
                 else -> state.audioUrl.ifBlank { null }
             }
 
             // Seksjoner – last opp bilde og video per seksjon
             val ferdigeSeksjoner = state.sections.mapIndexed { index, seksjon ->
+                // Bilde
                 val finalImageUrl = when {
-                    seksjon.isImageUploaded && seksjon.imageUri != null ->
+                    seksjon.isImageUploaded && seksjon.imageUri != null -> {
+                        // Tilbakemelding til bruker om at bildefil lastes opp til database
+                        _uiState.update { it.copy(savingMessage = "Laster opp bilde i seksjon ${index + 1}...") }
                         runCatching { uploadMedia(seksjon.imageUri, "image") }
                             .getOrElse {
                                 _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av bilde i seksjon ${index + 1}") }
                                 return@launch
                             }
+                    }
                     else -> seksjon.imageUrl.ifBlank { null }
                 }
-
+                // Video
                 val finalVideoUrl = when {
-                    seksjon.isVideoUploaded && seksjon.videoUri != null ->
+                    seksjon.isVideoUploaded && seksjon.videoUri != null -> {
+                        // Tilbakemelding til bruker om at videofil lastes opp til database
+                        _uiState.update { it.copy(savingMessage = "Laster opp video i seksjon ${index + 1}...") }
                         runCatching { uploadMedia(seksjon.videoUri, "video") }
                             .getOrElse {
                                 _uiState.update { it.copy(isSaving = false, popupMessage = "Feil ved opplasting av video i seksjon ${index + 1}") }
                                 return@launch
                             }
+                    }
                     else -> seksjon.videoUrl.ifBlank { null }
                 }
 
@@ -121,6 +131,9 @@ class CreatePointViewModel(
                     videoUrl = finalVideoUrl
                 )
             }
+
+            // Bytter tilbakemelding til bare lagring av selve punktet
+            _uiState.update { it.copy(savingMessage = "Oppretter punkt...") }
 
             val point = Point(
                 userId = userId,
@@ -221,7 +234,7 @@ class CreatePointViewModel(
             val sections = state.sections.toMutableList()
             sections[sectionIndex] = sections[sectionIndex].copy(
                 videoUri = uri,
-                videoUrl = getFileName(uri), // TODO: fjern kommentar? dette er bare en fallback på det brukeren ser som bekreftelse i tekstfeltet hvis lastPathSegment returnerer null
+                videoUrl = getFileName(uri),
                 isVideoUploaded = true
             )
             state.copy(sections = sections)
@@ -311,6 +324,32 @@ class CreatePointViewModel(
                     current.sections.getOrNull(index) ?: SectionUiState()
                 }
             )
+        }
+    }
+
+    // ======= Funksjoner for å flytte seksjoner opp eller ned i seksjonslista =======
+
+    // TODO: sett opp knapper med onClick i Screen
+
+    fun moveSectionUp(index: Int) {
+        if (index <= 0) return
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            val temp = sections[index]
+            sections[index] = sections[index - 1]
+            sections[index - 1] = temp
+            state.copy(sections = sections)
+        }
+    }
+
+    fun moveSectionDown(index: Int) {
+        if (index >= _uiState.value.sections.size - 1) return
+        _uiState.update { state ->
+            val sections = state.sections.toMutableList()
+            val temp = sections[index]
+            sections[index] = sections[index + 1]
+            sections[index + 1] = temp
+            state.copy(sections = sections)
         }
     }
 
