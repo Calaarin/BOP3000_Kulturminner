@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import no.usn.kulturminner.data.local.TokenStorage
+import no.usn.kulturminner.data.network.RetrofitInstance
 import no.usn.kulturminner.ui.navigation.AppNavHost
 import no.usn.kulturminner.ui.theme.KulturminnerTheme
 
@@ -16,6 +18,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val tokenStorage = TokenStorage(applicationContext)
+        RetrofitInstance.initialize(tokenStorage)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 

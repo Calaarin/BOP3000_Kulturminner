@@ -2,10 +2,11 @@ package no.usn.kulturminner.data.network
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
+import no.usn.kulturminner.BuildConfig
+import no.usn.kulturminner.data.local.TokenStorage
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import no.usn.kulturminner.BuildConfig
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
@@ -21,40 +22,37 @@ object RetrofitInstance {
         encodeDefaults = true
     }
 
-    // OkHttp-klient med logging (kun i debug)
-    private val okHttpClient: OkHttpClient by lazy {
+    private lateinit var tokenStorage: TokenStorage
+
+    fun initialize(tokenStorage: TokenStorage) {
+        this.tokenStorage = tokenStorage
+    }
+
+    // Hoved Retrofit-instansen som brukes overalt
+    val retrofit: Retrofit by lazy {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY      // Logg hele request + response
+                HttpLoggingInterceptor.Level.BODY
             } else {
                 HttpLoggingInterceptor.Level.NONE
             }
         }
 
-        OkHttpClient.Builder()
+        // OkHttp-klient med logging (kun i debug)
+        val client = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(tokenStorage))
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
-    }
 
-    // Hoved Retrofit-instansen som brukes overalt
-    val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .client(client)
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
             .build()
     }
-
-    // TODO: Fremtidig auth-interceptor (når login er på plass)
-    // private val authInterceptor = Interceptor { chain ->
-    //     val request = chain.request().newBuilder()
-    //         .addHeader("Authorization", "Bearer ${AuthManager.token}")
-    //         .build()
-    //     chain.proceed(request)
-    // }
 }

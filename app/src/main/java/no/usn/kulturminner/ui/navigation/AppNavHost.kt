@@ -1,5 +1,6 @@
 package no.usn.kulturminner.ui.navigation
 
+import android.app.Application
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.google.android.gms.location.FusedLocationProviderClient
+import no.usn.kulturminner.data.local.TokenStorage
 
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
@@ -27,6 +29,7 @@ import no.usn.kulturminner.data.source.PointSource
 import no.usn.kulturminner.data.source.UserSource
 import no.usn.kulturminner.ui.auth.LoginScreen
 import no.usn.kulturminner.ui.auth.LoginViewModel
+import no.usn.kulturminner.ui.auth.LoginViewModelFactory
 import no.usn.kulturminner.ui.explore.ExploreScreen
 import no.usn.kulturminner.ui.explore.ExploreViewModel
 import no.usn.kulturminner.ui.overview.OverviewScreen
@@ -47,11 +50,8 @@ import no.usn.kulturminner.ui.overview.SortType
 fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
 
     val navController = rememberNavController()
-    val context = LocalContext.current.applicationContext
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry.value?.destination?.route
-
-    val isLoginScreen = currentRoute == Destinations.Login.route
+    val context = LocalContext.current.applicationContext as Application
+    val tokenStorage = remember { TokenStorage(context) }
 
     // Oppretter repositorier til ViewModelFactories
     // (Vi kunne brukt dependency-injection-biblioteket "Hilt", men foretrekte å ikke abstrahere instansiering i dette prosjektet)
@@ -71,28 +71,32 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             )
         },
         bottomBar = {
-            if (!isLoginScreen) {
-                BottomNavBar(navController = navController)
-            }
+            BottomNavBar(
+                navController = navController,
+                tokenStorage = tokenStorage
+            )
+
         }
     ) { innerPadding ->
 
         NavHost(
             navController = navController,
-            startDestination = Destinations.Login.route,
+            startDestination = Destinations.Explore.route,
             modifier = androidx.compose.ui.Modifier.padding(innerPadding)
         ) {
 
             // --- LOGIN ---
             composable(Destinations.Login.route) {
-                val viewModel: LoginViewModel = viewModel()
+                val viewModel: LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(tokenStorage)
+                )
                 val uiState by viewModel.uiState.collectAsState()
 
-                // Når innlogging lykkes i ViewModel, navigerer vi til Overview
-                if (uiState.isLoginSuccess) {
-                    LaunchedEffect(Unit) {
+                LaunchedEffect(uiState.isLoginSuccess) {
+                    // Når innlogging lykkes i ViewModel, navigerer vi til Overview
+                    if (uiState.isLoginSuccess) {
                         navController.navigate(Destinations.Overview.route) {
-                            // Fjerner login fra historikken så man ikke kan gå "tilbake" til den
+                            // Fjerner login fra backstacken så man ikke kan gå tilbake til den
                             popUpTo(Destinations.Login.route) { inclusive = true }
                         }
                     }
@@ -100,8 +104,8 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
 
                 LoginScreen(
                     uiState = uiState,
-                    onEmailChange = viewModel::onEmailChange,
-                    onPasswordChange = viewModel::onPasswordChange,
+                    onEmailChange = viewModel::updateEmail,
+                    onPasswordChange = viewModel::updatePassword,
                     onLoginClick = viewModel::login,
                     onSkipClick = {
                         navController.navigate(Destinations.Overview.route) {
@@ -130,7 +134,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             // --- OVERVIEW (admin dashboard) ---
             composable(Destinations.Overview.route) {
                 val viewModel: OverviewViewModel = viewModel(
-                    factory = OverviewViewModelFactory(userRepo, pointRepo)
+                    factory = OverviewViewModelFactory(userRepo, pointRepo, tokenStorage)
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
@@ -157,7 +161,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
             /// --- CREATE POINT ---
             composable(Destinations.CreatePoint.route) {
                 val viewModel: CreatePointViewModel = viewModel(
-                    factory = CreatePointViewModelFactory(pointRepo, context)
+                    factory = CreatePointViewModelFactory(pointRepo, tokenStorage, context)
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
@@ -201,7 +205,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                 val pointId = backStackEntry.arguments?.getString("pointId") ?: ""
 
                 val viewModel: EditPointViewModel = viewModel(
-                    factory = EditPointViewModelFactory(pointRepo, context)
+                    factory = EditPointViewModelFactory(pointRepo, tokenStorage, context)
                 )
 
                 // Last punktet når vi navigerer hit

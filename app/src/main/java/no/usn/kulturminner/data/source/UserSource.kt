@@ -6,8 +6,8 @@ import no.usn.kulturminner.data.api.UserDto
 
 class UserSource {
 
-    suspend fun getUser(id: String): UserDto =
-        UserApi.service.getUser(id)
+    suspend fun getMe(): UserDto =
+        UserApi.service.getMe()
 
     suspend fun updateUser(id: String, userDto: UserDto): UserDto =
         UserApi.service.updateUser(id, userDto)

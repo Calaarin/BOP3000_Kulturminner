@@ -7,8 +7,8 @@ interface UserApiService {
 
     // Hent en enkelt bruker (uten passord) TODO: endepunkter må matches med server
     // GET http://10.0.2.2:3000/user/get/:id
-    @GET("user/get/{id}")
-    suspend fun getUser(@Path("id") id: String): UserDto
+    @GET("user/me")
+    suspend fun getMe(): UserDto
 
     // Oppdater bruker (PATCH anbefalt for delvis oppdatering - TODO; se mer på hva som er anbefalt)
     @PATCH("user/{id}")
@@ -25,7 +25,7 @@ interface UserApiService {
         @Body user: UserDto
     ): UserDto
 
-    // Endre passord – kun nytt passord sendes
+    // Endre passord – kun nytt passord sendes (Ubrukt foreløpig)
     // PUT http://10.0.2.2:3000/user/update-password/:id
     @PUT("user/update-password/{id}")
     suspend fun updatePassword(

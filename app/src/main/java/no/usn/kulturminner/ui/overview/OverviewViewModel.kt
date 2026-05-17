@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import no.usn.kulturminner.data.api.DeleteMediaRequest
 import no.usn.kulturminner.data.api.MediaApi
+import no.usn.kulturminner.data.local.TokenStorage
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.model.User
 import no.usn.kulturminner.data.repository.PointRepository
@@ -15,21 +16,16 @@ import no.usn.kulturminner.data.repository.UserRepository
 
 class OverviewViewModel(
     private val userRepository: UserRepository,
-    private val pointRepository: PointRepository
+    private val pointRepository: PointRepository,
+    private val tokenStorage: TokenStorage,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState = _uiState.asStateFlow()
 
-    // id-en til dummybruker (lokale data)
-    val dummyId: String = "u1"
-
-    // Midlertidig hardkodet brukerID basert på det som ligger i databasen
-    val arneId: String = "0667a905-b6e3-42a8-9020-dcc387d24f1a"
-    val toreId: String = "c9329389-90ac-472f-8497-8bce166b3290"
-
-    // Valgt brukerId blant de 3 over:
-    val userId: String =  arneId // byttes etter behov (må byttes likt i 3 ViewModels: Overview, CreatePoint og EditPoint)
+    /// Bruker-ID fra TokenStorage
+    private val userId: String
+        get() = tokenStorage.getUserId() ?: ""
 
     // Kjøres ved navigering til Screen
     init {
@@ -41,7 +37,7 @@ class OverviewViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isUserLoading = true, userError = null) }
 
-            userRepository.getUser(userId)         // Bruk getUser(userId) for serverdata, getDummyUser(userId) for lokalt
+            userRepository.getMe()         // Bruk getUser(userId) for serverdata, getDummyUser(userId) for lokalt
                 .onSuccess { user ->
                     _uiState.update { it.copy(user = user, isUserLoading = false) }
                 }

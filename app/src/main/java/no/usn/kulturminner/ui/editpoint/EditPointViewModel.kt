@@ -1,5 +1,6 @@
 package no.usn.kulturminner.ui.editpoint
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -16,25 +17,21 @@ import okhttp3.MediaType.Companion.toMediaType
 import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.PointRepository
 import no.usn.kulturminner.data.api.MediaApi
+import no.usn.kulturminner.data.local.TokenStorage
 import no.usn.kulturminner.data.model.Section
 
 class EditPointViewModel(
     private val pointRepository: PointRepository,
-    private val context: Context
+    private val tokenStorage: TokenStorage,
+    private val context: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditPointUiState())
     val uiState = _uiState.asStateFlow()
 
-    // id-en til dummybruker (lokale data)
-    val dummyId: String = "u1"
-
-    // Midlertidig hardkodet brukerID basert på det som ligger i databasen
-    val arneId: String = "0667a905-b6e3-42a8-9020-dcc387d24f1a"
-    val toreId: String = "c9329389-90ac-472f-8497-8bce166b3290"
-
-    // Valgt brukerId blant de 3 over:
-    val userId: String =  arneId // byttes etter behov (må byttes likt i 3 ViewModels: Overview, CreatePoint og EditPoint)
+    // Bruker-ID fra TokenStorage
+    private val userId: String
+        get() = tokenStorage.getUserId() ?: ""
 
     fun loadPoint(id: String) {
         viewModelScope.launch {
