@@ -3,6 +3,7 @@ package no.usn.kulturminner.ui.explore
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -12,6 +13,7 @@ import no.usn.kulturminner.data.model.Point
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepository
 import no.usn.kulturminner.data.repository.RouteRepository
+import no.usn.kulturminner.data.model.LatLng
 
 class ExploreViewModel(
     private val pointRepository: PointRepository,
@@ -22,12 +24,13 @@ class ExploreViewModel(
     private val _uiState = MutableStateFlow(ExploreUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var simulationJob: Job? = null
+    private var locationJob: Job? = null
+
     init {
         fetchAllPoints()
         fetchRoutes()
-        // fetchSinglePoint("p2") // Bytt til enten "p1", "p2", "p3", "p4" eller p5 for å teste layout i MediaPanel av andre datasammensetninger
-        // startLocationUpdates()
-        startSimulatedMovement()
+        locationJob = viewModelScope.launch { runLocationUpdates() }
     }
 
     // ======================================= EXPLOREMAP =======================================
@@ -62,16 +65,27 @@ class ExploreViewModel(
         }
     }
 
+    fun toggleLocationMode() {
+        val usingSimulation = !_uiState.value.isUsingSimulation
+        _uiState.update { it.copy(isUsingSimulation = usingSimulation) }
+
+        if (usingSimulation) {
+            locationJob?.cancel()
+            simulationJob = viewModelScope.launch { runRouteBasedSimulation() }
+        } else {
+            simulationJob?.cancel()
+            locationJob = viewModelScope.launch { runLocationUpdates() }
+        }
+    }
+
     // Starte posisjonsopdateringer til kart
-    private fun startLocationUpdates() {
-        viewModelScope.launch {
-            locationRepository.locationFlow().collect { location ->
-                _uiState.update { it.copy(
-                    userLat = location.latitude,
-                    userLng = location.longitude
-                )}
-                // checkProximityToPoints(location)
-            }
+    private suspend fun runLocationUpdates() {
+        locationRepository.locationFlow().collect { location ->
+            _uiState.update { it.copy(
+                userLat = location.latitude,
+                userLng = location.longitude
+            )}
+            checkProximityToPoints(location)
         }
     }
 
@@ -89,7 +103,7 @@ class ExploreViewModel(
         _uiState.update { it.copy(activePoint = pointNearby) }
     }
 
-    // Simulert brukerposisjon – starter utenfor radius, beveger seg inn og ut
+    // Simulert brukerposisjon – starter utenfor radius, beveger seg inn og ut - GAMMEL VERSJON
     fun startSimulatedMovement() {
         val targetLat = 59.41044  // Gullbring Kulturanlegg
         val targetLng = 9.06212
@@ -217,14 +231,116 @@ class ExploreViewModel(
         }
     }
 
+    private suspend fun runRouteBasedSimulation() {
+        // Vent til ruter er lastet
+        while (_uiState.value.routes.isEmpty()) {
+            delay(200L)
+        }
+
+        val routes = _uiState.value.routes
+
+        // Sett sammen ruter i ønsket rekkefølge basert på index
+        // Rekkefølgen tilpasses etter at du ser hvilke fid-er som matcher ønsket sti
+        // Start med å bruke alle ruter i rekkefølge og loop
+
+        // Eksempel: velg ruter i spesifikk rekkefølge basert på index i lista
+        val orderedCoordinates = listOf(0, 1, 2, 3, 4)  // justert etter testing av indeksering av ruta
+            .mapNotNull { routes.getOrNull(it) }
+            .flatMap { it.coordinates }
+
+        // Indekser i rutedata (deler av ruta):
+        // 2: fra Kirka. 3: fra Gullbring. 0: fra prestegård. 5: USN. 4: ? 1: ?
+
+        val smoothPath = buildSmoothPath(orderedCoordinates, stepsPerSegment = 15)
+
+        while (true) {  // loop
+            smoothPath.forEach { (lat, lng) ->
+                // Vent mens pauset
+                while (_uiState.value.isSimulationPaused) {
+                    delay(100L)
+                }
+
+                _uiState.update { it.copy(
+                    simulatedLat = lat,
+                    simulatedLng = lng
+                )}
+
+                val location = Location("simulert").apply {
+                    latitude = lat
+                    longitude = lng
+                }
+                checkProximityToPoints(location)
+
+                delay((50L / uiState.value.simulationSpeedMultiplier).toLong())
+            }
+        }
+    }
+
+    // Oppdatering av tilstand på pausing av simulert brukerbevegelse
+    fun toggleSimulationPause() {
+        _uiState.update { it.copy(isSimulationPaused = !it.isSimulationPaused) }
+    }
+
+    // Hjelpefunksjon for interpolering i simulert bevegelse
+    private fun interpolate(
+        start: no.usn.kulturminner.data.model.LatLng,
+        end: no.usn.kulturminner.data.model.LatLng,
+        steps: Int
+    ): List<Pair<Double, Double>> {
+        return (0..steps).map { i ->
+            val fraction = i / steps.toDouble()
+            Pair(
+                start.lat + (end.lat - start.lat) * fraction,
+                start.lng + (end.lng - start.lng) * fraction
+            )
+        }
+    }
+
+    private fun buildSmoothPath(coordinates: List<LatLng>, stepsPerSegment: Int): List<Pair<Double, Double>> {
+        if (coordinates.size < 2) return emptyList()
+        return (0 until coordinates.lastIndex).flatMap { i ->
+            interpolate(coordinates[i], coordinates[i + 1], stepsPerSegment)
+        }
+    }
+
+    // Økning av fart i simulert bevegelse
+    fun increaseSpeed() {
+        val current = _uiState.value.simulationSpeedMultiplier
+        val next = when (current) {
+            0.25f -> 0.33f
+            0.33f -> 0.5f
+            0.5f -> 1f
+            1f -> 2f
+            2f -> 3f
+            3f -> 4f
+            else -> current  // allerede på maks
+        }
+        _uiState.update { it.copy(simulationSpeedMultiplier = next) }
+    }
+
+    // Redusering av fart i simulert bevegelse
+    fun decreaseSpeed() {
+        val current = _uiState.value.simulationSpeedMultiplier
+        val next = when (current) {
+            4f -> 3f
+            3f -> 2f
+            2f -> 1f
+            1f -> 0.5f
+            0.5f -> 0.33f
+            0.33f -> 0.25f
+            else -> current  // allerede på min
+        }
+        _uiState.update { it.copy(simulationSpeedMultiplier = next) }
+    }
+
     // ======================================= MEDIAPANEL =======================================
 
-    // Hente et enkelt punkt til MediaPanel
+    // Hente et enkelt punkt til MediaPanel (dummydata fra PointRepository)
     fun fetchSinglePoint(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isPointLoading = true, pointError = null) }
 
-            pointRepository.getSingleDummyPoint(id)     // Bruk getPoint(id) for serverdata og getSingleDummyPoint(id) for lokale dummydata
+            pointRepository.getSingleDummyPoint(id)     // Bruk getPoint(id) for serverdata (trengs ikke), og getSingleDummyPoint(id) for lokale dummydata
                 .onSuccess { point ->
                     _uiState.update {
                         it.copy(

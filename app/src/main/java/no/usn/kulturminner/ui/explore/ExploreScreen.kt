@@ -31,13 +31,29 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Route
 import no.usn.kulturminner.ui.components.BaseMap
 import no.usn.kulturminner.ui.utils.toGeoJson
 import no.usn.kulturminner.R
+import org.maplibre.android.camera.CameraUpdateFactory
 
 @Composable
 fun ExploreScreen(
-    uiState: ExploreUiState
+    uiState: ExploreUiState,
+    onToggleSimulationPause: () -> Unit,
+    onIncreaseSpeed: () -> Unit,
+    onDecreaseSpeed: () -> Unit,
+    onToggleLocationMode: () -> Unit
 ) {
     val context = LocalContext.current
     var mapRef by remember { mutableStateOf<MapLibreMap?>(null) }
@@ -62,7 +78,7 @@ fun ExploreScreen(
 
         // ======================================== KART ========================================
 
-        // Kart i bakgrunnen – fyller hele skjermen
+        // Kart fyller hele skjermen i bakgrunnen
         BaseMap(
             modifier = Modifier.fillMaxSize(),
             initialLat = 59.41,
@@ -189,9 +205,94 @@ fun ExploreScreen(
                     source.setGeoJson(userGeoJson)
         }
 
+        // Kamera følger simulert bruker ved bevegelse
+        LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
+            val map = mapRef ?: return@LaunchedEffect
+            if (!uiState.isSimulationPaused) {
+                map.animateCamera(
+                    CameraUpdateFactory.newLatLng(
+                        org.maplibre.android.geometry.LatLng(
+                            uiState.simulatedLat,
+                            uiState.simulatedLng
+                        )
+                    )
+                )
+            }
+        }
+
+        // Oppdatering av synlighet på simulert bruker-ikon avhengig om man simulerer eller ikke
+        LaunchedEffect(uiState.isUsingSimulation) {
+            val map = mapRef ?: return@LaunchedEffect
+            val style = map.style ?: return@LaunchedEffect
+            val layer = style.getLayerAs<SymbolLayer>("user-lag") ?: return@LaunchedEffect
+            layer.setProperties(
+                PropertyFactory.visibility(
+                    if (uiState.isUsingSimulation) Property.VISIBLE else Property.NONE
+                )
+            )
+        }
+
+        // Pause- og start-knapp til å sette simulert brukerbevegelse på pause
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 16.dp, top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Toggle-knapp alltid synlig
+            FloatingActionButton(
+                onClick = onToggleLocationMode,
+                modifier = Modifier.size(48.dp),
+                containerColor = if (uiState.isUsingSimulation) Color(0xFF2E7D32) else Color(0xFF6F63D9),
+                contentColor = Color.White
+            ) {
+                Icon(
+                    imageVector = if (uiState.isUsingSimulation)
+                        Icons.Default.Route
+                    else
+                        Icons.Default.MyLocation,
+                    contentDescription = if (uiState.isUsingSimulation) "Bytt til ekte GPS" else "Bytt til simulering"
+                )
+            }
+
+            // Fart-kontroller kun ved simulering
+            if (uiState.isUsingSimulation) {
+                FloatingActionButton(
+                    onClick = onDecreaseSpeed,
+                    modifier = Modifier.size(48.dp),
+                    containerColor = Color(0xFF6F63D9),
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.FastRewind, contentDescription = "Reduser fart")
+                }
+
+                FloatingActionButton(
+                    onClick = onToggleSimulationPause,
+                    modifier = Modifier.size(48.dp),
+                    containerColor = Color(0xFF6F63D9),
+                    contentColor = Color.White
+                ) {
+                    Icon(
+                        imageVector = if (uiState.isSimulationPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                        contentDescription = if (uiState.isSimulationPaused) "Fortsett" else "Pause"
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = onIncreaseSpeed,
+                    modifier = Modifier.size(48.dp),
+                    containerColor = Color(0xFF6F63D9),
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.FastForward, contentDescription = "Øk fart")
+                }
+            }
+        }
+
         // ======================================== MEDIAPANEL ========================================
 
-        // Mediapanel – vises kun når bruker er nær et punkt
+        // Mediapanel vises kun som overlay over kart når bruker er nært et punkt
         AnimatedVisibility(
             visible = uiState.activePoint != null,
             enter = slideInVertically(
@@ -212,7 +313,7 @@ fun ExploreScreen(
                 // point = uiState.activePoint, - ikke i bruk nå
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.45f) // ca 45% av skjermen
+                    .fillMaxHeight(0.45f) // settes til ca 45% av skjermen
                     .align(Alignment.BottomCenter)
             )
         }

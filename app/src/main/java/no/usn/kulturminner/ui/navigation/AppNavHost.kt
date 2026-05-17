@@ -118,7 +118,13 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                 )
                 val uiState by viewModel.uiState.collectAsState()
 
-                ExploreScreen(uiState = uiState)
+                ExploreScreen(
+                    uiState = uiState,
+                    onToggleSimulationPause = viewModel::toggleSimulationPause,
+                    onIncreaseSpeed = viewModel::increaseSpeed,
+                    onDecreaseSpeed = viewModel::decreaseSpeed,
+                    onToggleLocationMode = viewModel::toggleLocationMode
+                )
             }
 
             // --- OVERVIEW (admin dashboard) ---

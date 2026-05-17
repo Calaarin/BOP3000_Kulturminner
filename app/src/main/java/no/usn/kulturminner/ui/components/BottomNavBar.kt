@@ -3,6 +3,9 @@ package no.usn.kulturminner.ui.components
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Settings
 import androidx.navigation.NavController
@@ -27,7 +30,7 @@ fun BottomNavBar(
                     popUpTo(Destinations.Explore.route) { inclusive = false }
                 }
             },
-            icon = { Icon(Icons.Default.Map, contentDescription = "Kart") },
+            icon = { Icon(Icons.Default.Explore, contentDescription = "Kart") },
             label = { Text("Kart") }
         )
 
@@ -38,7 +41,7 @@ fun BottomNavBar(
                     popUpTo(Destinations.Overview.route) { inclusive = false }
                 }
             },
-            icon = { Icon(Icons.Default.Settings, contentDescription = "Administrasjon") },
+            icon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = "Administrasjon") },
             label = { Text("Administrasjon") }
         )
     }
