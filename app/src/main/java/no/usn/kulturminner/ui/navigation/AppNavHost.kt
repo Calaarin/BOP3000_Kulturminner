@@ -130,6 +130,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
 
                 ExploreScreen(
                     uiState = uiState,
+                    tokenStorage = tokenStorage,
                     onToggleSimulationPause = viewModel::toggleSimulationPause,
                     onIncreaseSpeed = viewModel::increaseSpeed,
                     onDecreaseSpeed = viewModel::decreaseSpeed,

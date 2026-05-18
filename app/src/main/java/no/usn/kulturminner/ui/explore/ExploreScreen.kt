@@ -45,11 +45,13 @@ import androidx.compose.material.icons.filled.Route
 import no.usn.kulturminner.ui.components.BaseMap
 import no.usn.kulturminner.ui.utils.toGeoJson
 import no.usn.kulturminner.R
+import no.usn.kulturminner.data.local.TokenStorage
 import org.maplibre.android.camera.CameraUpdateFactory
 
 @Composable
 fun ExploreScreen(
     uiState: ExploreUiState,
+    tokenStorage: TokenStorage,
     onToggleSimulationPause: () -> Unit,
     onIncreaseSpeed: () -> Unit,
     onDecreaseSpeed: () -> Unit,
@@ -205,8 +207,8 @@ fun ExploreScreen(
                     source.setGeoJson(userGeoJson)
         }
 
-        // Kamera følger simulert bruker ved bevegelse
         LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
+            if (!uiState.isUsingSimulation) return@LaunchedEffect  // ← legg til
             val map = mapRef ?: return@LaunchedEffect
             if (!uiState.isSimulationPaused) {
                 map.animateCamera(
@@ -233,59 +235,61 @@ fun ExploreScreen(
         }
 
         // Pause- og start-knapp til å sette simulert brukerbevegelse på pause
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 16.dp, top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Toggle-knapp alltid synlig
-            FloatingActionButton(
-                onClick = onToggleLocationMode,
-                modifier = Modifier.size(48.dp),
-                containerColor = if (uiState.isUsingSimulation) Color(0xFF2E7D32) else Color(0xFF6F63D9),
-                contentColor = Color.White
+        if (tokenStorage.isLoggedIn()) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp, top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (uiState.isUsingSimulation)
-                        Icons.Default.Route
-                    else
-                        Icons.Default.MyLocation,
-                    contentDescription = if (uiState.isUsingSimulation) "Bytt til ekte GPS" else "Bytt til simulering"
-                )
-            }
-
-            // Fart-kontroller kun ved simulering
-            if (uiState.isUsingSimulation) {
+                // Toggle-knapp alltid synlig
                 FloatingActionButton(
-                    onClick = onDecreaseSpeed,
+                    onClick = onToggleLocationMode,
                     modifier = Modifier.size(48.dp),
-                    containerColor = Color(0xFF6F63D9),
-                    contentColor = Color.White
-                ) {
-                    Icon(Icons.Default.FastRewind, contentDescription = "Reduser fart")
-                }
-
-                FloatingActionButton(
-                    onClick = onToggleSimulationPause,
-                    modifier = Modifier.size(48.dp),
-                    containerColor = Color(0xFF6F63D9),
+                    containerColor = if (uiState.isUsingSimulation) Color(0xFF2E7D32) else Color(0xFF6F63D9),
                     contentColor = Color.White
                 ) {
                     Icon(
-                        imageVector = if (uiState.isSimulationPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                        contentDescription = if (uiState.isSimulationPaused) "Fortsett" else "Pause"
+                        imageVector = if (uiState.isUsingSimulation)
+                            Icons.Default.Route
+                        else
+                            Icons.Default.MyLocation,
+                        contentDescription = if (uiState.isUsingSimulation) "Bytt til ekte GPS" else "Bytt til simulering"
                     )
                 }
 
-                FloatingActionButton(
-                    onClick = onIncreaseSpeed,
-                    modifier = Modifier.size(48.dp),
-                    containerColor = Color(0xFF6F63D9),
-                    contentColor = Color.White
-                ) {
-                    Icon(Icons.Default.FastForward, contentDescription = "Øk fart")
+                // Fart-kontroller kun ved simulering
+                if (uiState.isUsingSimulation) {
+                    FloatingActionButton(
+                        onClick = onDecreaseSpeed,
+                        modifier = Modifier.size(48.dp),
+                        containerColor = Color(0xFF6F63D9),
+                        contentColor = Color.White
+                    ) {
+                        Icon(Icons.Default.FastRewind, contentDescription = "Reduser fart")
+                    }
+
+                    FloatingActionButton(
+                        onClick = onToggleSimulationPause,
+                        modifier = Modifier.size(48.dp),
+                        containerColor = Color(0xFF6F63D9),
+                        contentColor = Color.White
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.isSimulationPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                            contentDescription = if (uiState.isSimulationPaused) "Fortsett" else "Pause"
+                        )
+                    }
+
+                    FloatingActionButton(
+                        onClick = onIncreaseSpeed,
+                        modifier = Modifier.size(48.dp),
+                        containerColor = Color(0xFF6F63D9),
+                        contentColor = Color.White
+                    ) {
+                        Icon(Icons.Default.FastForward, contentDescription = "Øk fart")
+                    }
                 }
             }
         }
