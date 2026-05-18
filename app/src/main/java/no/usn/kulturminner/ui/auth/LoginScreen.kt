@@ -14,7 +14,6 @@ fun LoginScreen(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
-    onSkipClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -66,10 +65,6 @@ fun LoginScreen(
                 } else {
                     Text("Logg inn")
                 }
-            }
-
-            TextButton(onClick = onSkipClick, enabled = !uiState.isLoading) {
-                Text("Hopp over")
             }
         }
     }

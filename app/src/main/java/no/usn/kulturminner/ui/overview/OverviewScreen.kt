@@ -1,5 +1,6 @@
 package no.usn.kulturminner.ui.overview
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -96,9 +97,12 @@ fun OverviewScreen(
                                     OutlinedButton(
                                         onClick = onLogoutClick,
                                         shape = RoundedCornerShape(10.dp),
-                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = Color(0xFFD0C8F0)  // litt mørkere lilla enn kortets E3DDF6
+                                        )
                                     ) {
-                                        Text("Logg ut")
+                                        Text("Logg ut", color = Color(0xFF4F46A3))
                                     }
                                 }
 
@@ -187,6 +191,7 @@ fun OverviewScreen(
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 val date = point.updatedAt?.let {
                                                     DateTimeFormatter.ofPattern("dd. MMM yyyy")
+                                                        .withLocale(java.util.Locale("no"))
                                                         .withZone(ZoneId.systemDefault())
                                                         .format(it)
                                                 } ?: ""

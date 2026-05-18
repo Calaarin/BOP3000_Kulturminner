@@ -21,7 +21,7 @@ fun SavingDialog(message: String) {
     Dialog(onDismissRequest = {}) {  // tom – kan ikke lukkes manuelt
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3DDF6))
         ) {
             Column(
                 modifier = Modifier.padding(32.dp),

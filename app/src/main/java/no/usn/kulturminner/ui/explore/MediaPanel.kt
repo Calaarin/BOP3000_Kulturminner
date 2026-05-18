@@ -74,7 +74,7 @@ fun MediaPanel(
                 // Lyd (dette settes på punkt-nivå, ikke seksjon, siden vi har én lydfil per punkt)
                 point.audioUrl?.takeIf { it.isNotBlank() }?.let { url ->
                     AudioPlayer(url = url)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
                 // Iterer gjennom alle seksjoner
@@ -110,7 +110,7 @@ private fun SectionContent(section: Section, index: Int) {
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
 
         // Tekst
@@ -132,7 +132,7 @@ private fun SectionContent(section: Section, index: Int) {
                 placeholder = null,           // kan legge inn en placeholder drawable senere
                 error = null                  // kan legge inn error-bilde senere
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(42.dp))
         }
 
         // Video
@@ -143,7 +143,7 @@ private fun SectionContent(section: Section, index: Int) {
                     .fillMaxWidth()
                     .height(200.dp),
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(42.dp))
         }
     }
 }

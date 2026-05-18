@@ -18,6 +18,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.google.android.gms.location.FusedLocationProviderClient
 import no.usn.kulturminner.data.local.TokenStorage
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 
 import no.usn.kulturminner.data.repository.LocationRepository
 import no.usn.kulturminner.data.repository.PointRepositoryImpl
@@ -86,7 +89,15 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
         ) {
 
             // --- LOGIN ---
-            composable(Destinations.Login.route) {
+            composable(
+                Destinations.Login.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(5000))
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(5000))
+                }
+            ) {
                 val viewModel: LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(tokenStorage)
                 )
@@ -106,12 +117,7 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     uiState = uiState,
                     onEmailChange = viewModel::updateEmail,
                     onPasswordChange = viewModel::updatePassword,
-                    onLoginClick = viewModel::login,
-                    onSkipClick = {
-                        navController.navigate(Destinations.Overview.route) {
-                            popUpTo(Destinations.Login.route) { inclusive = true }
-                        }
-                    }
+                    onLoginClick = viewModel::login
                 )
             }
 
