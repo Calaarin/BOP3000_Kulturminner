@@ -16,7 +16,9 @@ data class OverviewUiState(
     val pointToDeleteId: String? = null,
 
     val sortType: SortType = SortType.DATE,
-    val isSortedAlphabetically: Boolean = false
+    val isSortedAlphabetically: Boolean = false,
+
+    val isLoggedOut: Boolean = false
 )
 
 enum class SortType {

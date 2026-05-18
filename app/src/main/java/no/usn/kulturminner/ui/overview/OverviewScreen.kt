@@ -22,6 +22,7 @@ import java.time.ZoneId
 @Composable
 fun OverviewScreen(
     uiState: OverviewUiState,
+    onLogoutClick: () -> Unit,
     onCreatePointClick: () -> Unit,
     onEditPointClick: (String) -> Unit,
     onDeletePointClick: (String) -> Unit,
@@ -93,11 +94,11 @@ fun OverviewScreen(
                                     }
 
                                     OutlinedButton(
-                                        onClick = { /* TODO: Endre passord */ },
+                                        onClick = onLogoutClick,
                                         shape = RoundedCornerShape(10.dp),
                                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("Endre passord")
+                                        Text("Logg ut")
                                     }
                                 }
 

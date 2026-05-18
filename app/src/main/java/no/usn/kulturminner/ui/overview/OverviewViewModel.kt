@@ -112,4 +112,10 @@ class OverviewViewModel(
             current.copy(points = sortedPoints, sortType = newSortType)
         }
     }
+
+    // Utlogging
+    fun logout() {
+        tokenStorage.clear()
+        _uiState.update { OverviewUiState(isLoggedOut = true) }
+    }
 }

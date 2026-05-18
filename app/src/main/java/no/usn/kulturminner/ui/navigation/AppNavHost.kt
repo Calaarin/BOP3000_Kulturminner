@@ -142,8 +142,17 @@ fun AppNavHost(fusedLocationClient: FusedLocationProviderClient) {
                     viewModel.fetchMyPoints()
                 }
 
+                LaunchedEffect(uiState.isLoggedOut) {
+                    if (uiState.isLoggedOut) {
+                        navController.navigate(Destinations.Explore.route) {
+                            popUpTo(Destinations.Overview.route) { inclusive = true }
+                        }
+                    }
+                }
+
                 OverviewScreen(
                     uiState = uiState,
+                    onLogoutClick = viewModel::logout,
                     onCreatePointClick = {
                         navController.navigate(Destinations.CreatePoint.route)
                     },

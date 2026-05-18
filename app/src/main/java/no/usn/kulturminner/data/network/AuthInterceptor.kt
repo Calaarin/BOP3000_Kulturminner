@@ -14,6 +14,13 @@ class AuthInterceptor(private val tokenStorage: TokenStorage) : Interceptor {
         } else {
             chain.request()
         }
-        return chain.proceed(request)
+        val response = chain.proceed(request)
+
+        // Hvis man får 401 (utløpt token), så slett i så fall token slik at isLoggedIn() returnerer false
+        if (response.code == 401) {
+            tokenStorage.clear()
+        }
+
+        return response
     }
 }
