@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    // TODO: Endre til riktig base URL for HOSTED server senere. Dette er localhost
+    // URL-ene er satt opp til å kunne byttes mellom localhost og hostet server
 
     private const val LOCALHOST_URL = "http://10.0.2.2:3000/"
     private const val HOSTED_SERVER_URL = "https://derdugarbackend.onrender.com/"
