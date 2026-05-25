@@ -56,7 +56,7 @@ fun BaseMap(
     initialLat: Double = 59.41,
     initialLng: Double = 9.0588,
     initialZoom: Double = 15.0,
-    onMapReady: (MapLibreMap) -> Unit = {}   // kart-objektet sendes ut (MapLibreMap import i bruk her)
+    onMapReady: (MapLibreMap) -> Unit = {}   // kart-objektet sendes ut
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -67,7 +67,7 @@ fun BaseMap(
         MapView(context).apply {
             getMapAsync { map ->
                 map.setStyle(Style.Builder().fromJson(kartverketStyle())) {
-                    // Style er lastet – nå er det trygt å legge til lag/symboler
+                    // Style er lastet her, slik at det nå er det trygt å legge til lag/symboler, så da brukes onMapReady
                     onMapReady(map)
                 }
                 map.cameraPosition = CameraPosition.Builder()
@@ -75,7 +75,7 @@ fun BaseMap(
                     .zoom(initialZoom)
                     .build()
 
-                // Eksplisitt aktiver zoom og scroll (er default, men tydeliggjør det)
+                // Eksplisitt aktiver zoom og scroll (skal være default uansett da, men tydeliggjør det)
                 map.uiSettings.isZoomGesturesEnabled = true
                 map.uiSettings.isScrollGesturesEnabled = true
             }
@@ -111,7 +111,7 @@ fun BaseMap(
             })
             .pointerInteropFilter { motionEvent ->
                 mapView.dispatchTouchEvent(motionEvent)
-                true // true = hendelsen er konsumert, bobler ikke videre
+                true // hendelsen er konsumert, bobler ikke videre
             }
     )
 }

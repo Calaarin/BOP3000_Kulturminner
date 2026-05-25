@@ -208,7 +208,7 @@ fun ExploreScreen(
         }
 
         LaunchedEffect(uiState.simulatedLat, uiState.simulatedLng) {
-            if (!uiState.isUsingSimulation) return@LaunchedEffect  // ← legg til
+            if (!uiState.isUsingSimulation) return@LaunchedEffect  //
             val map = mapRef ?: return@LaunchedEffect
             if (!uiState.isSimulationPaused) {
                 map.animateCamera(
@@ -243,7 +243,7 @@ fun ExploreScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Toggle-knapp alltid synlig
+                // Toggle-knapp blir alltid synlig når admin er logget inn
                 FloatingActionButton(
                     onClick = onToggleLocationMode,
                     modifier = Modifier.size(48.dp),

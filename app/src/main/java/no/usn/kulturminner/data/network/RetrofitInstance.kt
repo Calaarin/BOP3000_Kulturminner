@@ -16,7 +16,7 @@ object RetrofitInstance {
 
     private const val LOCALHOST_URL = "http://10.0.2.2:3000/"
     private const val HOSTED_SERVER_URL = "https://derdugarbackend.onrender.com/"
-    private const val BASE_URL = HOSTED_SERVER_URL
+    private const val BASE_URL = LOCALHOST_URL
 
     // JSON-konfigurasjon tilpasset Kotlin og @Serializable
     private val json = Json {
